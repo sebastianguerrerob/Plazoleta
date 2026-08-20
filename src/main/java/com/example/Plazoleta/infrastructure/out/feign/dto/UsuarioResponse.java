@@ -1,4 +1,4 @@
-package com.example.Plazoleta.infrastructure.out.feign;
+package com.example.Plazoleta.infrastructure.out.feign.dto;
 
 import lombok.Data;
 
