@@ -8,6 +8,7 @@ class PlazoletaApplicationTests {
 
 	@Test
 	void contextLoads() {
+
 	}
 
 }
