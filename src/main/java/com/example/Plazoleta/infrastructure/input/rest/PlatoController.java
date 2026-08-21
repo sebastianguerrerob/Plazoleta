@@ -1,6 +1,7 @@
 package com.example.Plazoleta.infrastructure.input.rest;
 
 import com.example.Plazoleta.application.dto.PlatoRequestDto;
+import com.example.Plazoleta.application.dto.PlatoUpdateDto;
 import com.example.Plazoleta.application.mapper.IPlatoRequestMapper;
 import com.example.Plazoleta.domain.api.IPlatoServicePort;
 import com.example.Plazoleta.domain.model.Plato;
@@ -26,5 +27,15 @@ public class PlatoController {
         Plato plato = platoRequestMapper.toPlato(platoRequestDto);
         platoServicePort.crearPlato(plato, idPropietario);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/plato/{id}")
+    public ResponseEntity<Void> actualizarPlato(
+            @PathVariable Long id,
+            @Valid @RequestBody PlatoUpdateDto platoUpdateDto,
+            @RequestHeader("X-Propietario-Id") Long idPropietario) {
+
+        platoServicePort.actualizarPlato(id, platoUpdateDto.getPrecio(), platoUpdateDto.getDescripcion(), idPropietario);
+        return ResponseEntity.ok().build();
     }
 }
