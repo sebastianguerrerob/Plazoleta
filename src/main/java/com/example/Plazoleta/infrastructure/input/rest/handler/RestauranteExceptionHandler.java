@@ -1,6 +1,7 @@
 package com.example.Plazoleta.infrastructure.input.rest.handler;
 
 import com.example.Plazoleta.domain.exception.DomainException;
+import com.example.Plazoleta.domain.exception.PropietarioNoEsDuenoException;
 import com.example.Plazoleta.domain.exception.PropietarioNoValidoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,11 @@ public class RestauranteExceptionHandler {
 
     @ExceptionHandler(PropietarioNoValidoException.class)
     public ResponseEntity<Map<String, String>> handlePropietarioNoValido(PropietarioNoValidoException ex) {
+        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
+
+    @ExceptionHandler(PropietarioNoEsDuenoException.class)
+    public ResponseEntity<Map<String, String>> handlePropietarioNoEsDueno(PropietarioNoEsDuenoException ex) {
         return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
