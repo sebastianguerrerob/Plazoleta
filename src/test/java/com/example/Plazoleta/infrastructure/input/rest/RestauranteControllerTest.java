@@ -2,7 +2,7 @@ package com.example.Plazoleta.infrastructure.input.rest;
 
 import com.example.Plazoleta.application.dto.RestauranteRequestDto;
 import com.example.Plazoleta.application.mapper.IRestauranteRequestMapper;
-import com.example.Plazoleta.domain.api.IPlazoletaServicePort;
+import com.example.Plazoleta.domain.api.IRestauranteServicePort;
 import com.example.Plazoleta.domain.exception.NitNoNumericoException;
 import com.example.Plazoleta.domain.exception.NombreNoValidoException;
 import com.example.Plazoleta.domain.exception.PropietarioNoValidoException;
@@ -28,23 +28,23 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
-class PlazoletaControllerTest {
+class RestauranteControllerTest {
 
     @Mock
-    private IPlazoletaServicePort plazoletaServicePort;
+    private IRestauranteServicePort restauranteServicePort;
 
     @Mock
     private IRestauranteRequestMapper restauranteRequestMapper;
 
     @InjectMocks
-    private PlazoletaController plazoletaController;
+    private RestauranteController restauranteController;
 
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(plazoletaController)
+        mockMvc = MockMvcBuilders.standaloneSetup(restauranteController)
                 .setControllerAdvice(new RestauranteExceptionHandler())
                 .build();
         objectMapper = new ObjectMapper();
@@ -68,19 +68,17 @@ class PlazoletaControllerTest {
         @Test
         @DisplayName("Debe retornar 201 CREATED cuando los datos son válidos")
         void crearRestaurante_datosValidos_retorna201() throws Exception {
-            // Arrange
             RestauranteRequestDto dto = crearDtoValido();
             when(restauranteRequestMapper.toRestaurante(any(RestauranteRequestDto.class)))
                     .thenReturn(new Restaurante());
-            doNothing().when(plazoletaServicePort).crearRestaurante(any(Restaurante.class));
+            doNothing().when(restauranteServicePort).crearRestaurante(any(Restaurante.class));
 
-            // Act & Assert
             mockMvc.perform(post("/Plazoleta/restaurante")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isCreated());
 
-            verify(plazoletaServicePort).crearRestaurante(any(Restaurante.class));
+            verify(restauranteServicePort).crearRestaurante(any(Restaurante.class));
         }
     }
 
@@ -99,7 +97,7 @@ class PlazoletaControllerTest {
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest());
 
-            verify(plazoletaServicePort, never()).crearRestaurante(any());
+            verify(restauranteServicePort, never()).crearRestaurante(any());
         }
 
         @Test
@@ -113,7 +111,7 @@ class PlazoletaControllerTest {
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest());
 
-            verify(plazoletaServicePort, never()).crearRestaurante(any());
+            verify(restauranteServicePort, never()).crearRestaurante(any());
         }
 
         @Test
@@ -127,7 +125,7 @@ class PlazoletaControllerTest {
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest());
 
-            verify(plazoletaServicePort, never()).crearRestaurante(any());
+            verify(restauranteServicePort, never()).crearRestaurante(any());
         }
 
         @Test
@@ -141,7 +139,7 @@ class PlazoletaControllerTest {
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest());
 
-            verify(plazoletaServicePort, never()).crearRestaurante(any());
+            verify(restauranteServicePort, never()).crearRestaurante(any());
         }
 
         @Test
@@ -155,7 +153,7 @@ class PlazoletaControllerTest {
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest());
 
-            verify(plazoletaServicePort, never()).crearRestaurante(any());
+            verify(restauranteServicePort, never()).crearRestaurante(any());
         }
 
         @Test
@@ -169,7 +167,7 @@ class PlazoletaControllerTest {
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest());
 
-            verify(plazoletaServicePort, never()).crearRestaurante(any());
+            verify(restauranteServicePort, never()).crearRestaurante(any());
         }
 
         @Test
@@ -183,7 +181,7 @@ class PlazoletaControllerTest {
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest());
 
-            verify(plazoletaServicePort, never()).crearRestaurante(any());
+            verify(restauranteServicePort, never()).crearRestaurante(any());
         }
     }
 
@@ -194,14 +192,12 @@ class PlazoletaControllerTest {
         @Test
         @DisplayName("Debe retornar 403 cuando el usuario no es propietario")
         void crearRestaurante_noEsPropietario_retorna403() throws Exception {
-            // Arrange
             RestauranteRequestDto dto = crearDtoValido();
             when(restauranteRequestMapper.toRestaurante(any(RestauranteRequestDto.class)))
                     .thenReturn(new Restaurante());
             doThrow(new PropietarioNoValidoException())
-                    .when(plazoletaServicePort).crearRestaurante(any(Restaurante.class));
+                    .when(restauranteServicePort).crearRestaurante(any(Restaurante.class));
 
-            // Act & Assert
             mockMvc.perform(post("/Plazoleta/restaurante")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(dto)))
@@ -212,14 +208,12 @@ class PlazoletaControllerTest {
         @Test
         @DisplayName("Debe retornar 400 cuando el NIT no es numérico")
         void crearRestaurante_nitInvalido_retorna400() throws Exception {
-            // Arrange
             RestauranteRequestDto dto = crearDtoValido();
             when(restauranteRequestMapper.toRestaurante(any(RestauranteRequestDto.class)))
                     .thenReturn(new Restaurante());
             doThrow(new NitNoNumericoException())
-                    .when(plazoletaServicePort).crearRestaurante(any(Restaurante.class));
+                    .when(restauranteServicePort).crearRestaurante(any(Restaurante.class));
 
-            // Act & Assert
             mockMvc.perform(post("/Plazoleta/restaurante")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(dto)))
@@ -230,14 +224,12 @@ class PlazoletaControllerTest {
         @Test
         @DisplayName("Debe retornar 400 cuando el teléfono es inválido")
         void crearRestaurante_telefonoInvalido_retorna400() throws Exception {
-            // Arrange
             RestauranteRequestDto dto = crearDtoValido();
             when(restauranteRequestMapper.toRestaurante(any(RestauranteRequestDto.class)))
                     .thenReturn(new Restaurante());
             doThrow(new TelefonoNoValidoException())
-                    .when(plazoletaServicePort).crearRestaurante(any(Restaurante.class));
+                    .when(restauranteServicePort).crearRestaurante(any(Restaurante.class));
 
-            // Act & Assert
             mockMvc.perform(post("/Plazoleta/restaurante")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(dto)))
@@ -248,14 +240,12 @@ class PlazoletaControllerTest {
         @Test
         @DisplayName("Debe retornar 400 cuando el nombre es solo números")
         void crearRestaurante_nombreSoloNumeros_retorna400() throws Exception {
-            // Arrange
             RestauranteRequestDto dto = crearDtoValido();
             when(restauranteRequestMapper.toRestaurante(any(RestauranteRequestDto.class)))
                     .thenReturn(new Restaurante());
             doThrow(new NombreNoValidoException())
-                    .when(plazoletaServicePort).crearRestaurante(any(Restaurante.class));
+                    .when(restauranteServicePort).crearRestaurante(any(Restaurante.class));
 
-            // Act & Assert
             mockMvc.perform(post("/Plazoleta/restaurante")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(dto)))

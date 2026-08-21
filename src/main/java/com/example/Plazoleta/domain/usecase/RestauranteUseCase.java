@@ -1,6 +1,6 @@
 package com.example.Plazoleta.domain.usecase;
 
-import com.example.Plazoleta.domain.api.IPlazoletaServicePort;
+import com.example.Plazoleta.domain.api.IRestauranteServicePort;
 import com.example.Plazoleta.domain.exception.NitNoNumericoException;
 import com.example.Plazoleta.domain.exception.NombreNoValidoException;
 import com.example.Plazoleta.domain.exception.PropietarioNoValidoException;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PlazoletaUseCase implements IPlazoletaServicePort {
+public class RestauranteUseCase implements IRestauranteServicePort {
 
     private final IRestaurantePersistencePort restaurantePersistencePort;
     private final IUsuarioServicePort usuarioServicePort;
