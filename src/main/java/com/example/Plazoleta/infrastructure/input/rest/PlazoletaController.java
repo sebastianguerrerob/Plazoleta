@@ -1,5 +1,7 @@
 package com.example.Plazoleta.infrastructure.input.rest;
 
+import com.example.Plazoleta.application.dto.RestauranteRequestDto;
+import com.example.Plazoleta.application.mapper.IRestauranteRequestMapper;
 import com.example.Plazoleta.domain.api.IPlazoletaServicePort;
 import com.example.Plazoleta.domain.model.Restaurante;
 import lombok.RequiredArgsConstructor;
@@ -15,11 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PlazoletaController {
     private final IPlazoletaServicePort plazoletaServicePort;
+    private final IRestauranteRequestMapper restauranteRequestMapper;
 
     @PostMapping("/restaurante")
-    public ResponseEntity<Void> crearRestaurante(@RequestBody Restaurante restaurante) {
+    public ResponseEntity<Void> crearRestaurante(@RequestBody RestauranteRequestDto restauranteRequestDto) {
 
-        plazoletaServicePort.crearRestaurante(restaurante);
+        plazoletaServicePort.crearRestaurante(restauranteRequestMapper.toRestaurante(restauranteRequestDto));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
