@@ -7,6 +7,7 @@ import com.example.Plazoleta.domain.model.Restaurante;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,7 @@ public class PlazoletaController {
     private final IRestauranteRequestMapper restauranteRequestMapper;
 
     @PostMapping("/restaurante")
-    public ResponseEntity<Void> crearRestaurante(@RequestBody RestauranteRequestDto restauranteRequestDto) {
+    public ResponseEntity<Void> crearRestaurante(@Valid @RequestBody RestauranteRequestDto restauranteRequestDto) {
 
         plazoletaServicePort.crearRestaurante(restauranteRequestMapper.toRestaurante(restauranteRequestDto));
         return ResponseEntity.status(HttpStatus.CREATED).build();

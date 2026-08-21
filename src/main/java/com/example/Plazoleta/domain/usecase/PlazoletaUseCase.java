@@ -1,6 +1,10 @@
 package com.example.Plazoleta.domain.usecase;
 
 import com.example.Plazoleta.domain.api.IPlazoletaServicePort;
+import com.example.Plazoleta.domain.exception.NitNoNumericoException;
+import com.example.Plazoleta.domain.exception.NombreNoValidoException;
+import com.example.Plazoleta.domain.exception.PropietarioNoValidoException;
+import com.example.Plazoleta.domain.exception.TelefonoNoValidoException;
 import com.example.Plazoleta.domain.model.Propietario;
 import com.example.Plazoleta.domain.model.Restaurante;
 import com.example.Plazoleta.domain.spi.IRestaurantePersistencePort;
@@ -17,31 +21,29 @@ public class PlazoletaUseCase implements IPlazoletaServicePort {
     private static final String REGEX_NUM = "\\d+";
     private static final String REGEX_CELULAR = "^\\+?\\d{1,12}$";
 
-
     @Override
     public void crearRestaurante(Restaurante restaurante) {
-        //verificar Usuario propietario
-      
+        // Verificar que el usuario sea propietario
         Propietario propietario = usuarioServicePort.obtenerUsuarioPorId(restaurante.getId_propietario());
         if (!propietario.getRolId().equals(2L)) {
-            throw new RuntimeException(
-                    "El usuario no es un propietario"
-            );
+            throw new PropietarioNoValidoException();
         }
-        //verificar numerico NIT
+
+        // Verificar que el NIT sea numérico
         if (!restaurante.getNit().matches(REGEX_NUM)) {
-            throw new RuntimeException("El NIT debe ser únicamente numérico");
+            throw new NitNoNumericoException();
         }
-        //verificar Numero
+
+        // Verificar formato de teléfono
         if (!restaurante.getTelefono().matches(REGEX_CELULAR)) {
-            throw new RuntimeException("Formato de celular inválido (máx 13 caracteres)");
+            throw new TelefonoNoValidoException();
         }
-        //verificar Nombre restaurante
+
+        // Verificar que el nombre no sea solo números
         if (restaurante.getNombre().matches(REGEX_NUM)) {
-            throw new RuntimeException("El Nombre del restaurante no puede contener únicamente numéros");
+            throw new NombreNoValidoException();
         }
 
         restaurantePersistencePort.guardarRestaurante(restaurante);
-
     }
 }

@@ -19,7 +19,7 @@ public class RestauranteEntity {
     private Long id;
     private String nombre;
     private String direccion;
-    private int id_propietario;
+    private long id_propietario;
     private String telefono;
     private String urlLogo;
     @Column(unique = true,nullable = false)
