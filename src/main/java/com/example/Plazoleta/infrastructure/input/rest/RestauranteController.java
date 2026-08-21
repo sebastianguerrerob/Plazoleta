@@ -7,10 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/Plazoleta")
@@ -21,8 +18,13 @@ public class RestauranteController {
     private final IRestauranteRequestMapper restauranteRequestMapper;
 
     @PostMapping("/restaurante")
-    public ResponseEntity<Void> crearRestaurante(@Valid @RequestBody RestauranteRequestDto restauranteRequestDto) {
-        restauranteServicePort.crearRestaurante(restauranteRequestMapper.toRestaurante(restauranteRequestDto));
+    public ResponseEntity<Void> crearRestaurante(
+            @Valid @RequestBody RestauranteRequestDto restauranteRequestDto,
+            @RequestHeader("Authorization") String authorization) {
+
+        restauranteServicePort.crearRestaurante(
+                restauranteRequestMapper.toRestaurante(restauranteRequestDto),
+                authorization);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
