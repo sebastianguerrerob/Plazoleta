@@ -3,6 +3,8 @@ package com.example.Plazoleta.infrastructure.input.rest.handler;
 import com.example.Plazoleta.domain.exception.DomainException;
 import com.example.Plazoleta.domain.exception.PropietarioNoEsDuenoException;
 import com.example.Plazoleta.domain.exception.PropietarioNoValidoException;
+import com.example.Plazoleta.domain.exception.RolNoAutorizadoException;
+import com.example.Plazoleta.domain.exception.TokenNoValidoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +16,16 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class RestauranteExceptionHandler {
+
+    @ExceptionHandler(TokenNoValidoException.class)
+    public ResponseEntity<Map<String, String>> handleTokenNoValido(TokenNoValidoException ex) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(RolNoAutorizadoException.class)
+    public ResponseEntity<Map<String, String>> handleRolNoAutorizado(RolNoAutorizadoException ex) {
+        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
 
     @ExceptionHandler(PropietarioNoValidoException.class)
     public ResponseEntity<Map<String, String>> handlePropietarioNoValido(PropietarioNoValidoException ex) {

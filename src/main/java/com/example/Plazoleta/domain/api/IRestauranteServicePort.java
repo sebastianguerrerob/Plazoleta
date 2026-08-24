@@ -3,5 +3,5 @@ package com.example.Plazoleta.domain.api;
 import com.example.Plazoleta.domain.model.Restaurante;
 
 public interface IRestauranteServicePort {
-    void crearRestaurante(Restaurante restaurante);
+    void crearRestaurante(Restaurante restaurante, String token);
 }

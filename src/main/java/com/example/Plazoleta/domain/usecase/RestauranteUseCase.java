@@ -1,14 +1,11 @@
 package com.example.Plazoleta.domain.usecase;
 
 import com.example.Plazoleta.domain.api.IRestauranteServicePort;
-import com.example.Plazoleta.domain.exception.NitNoNumericoException;
-import com.example.Plazoleta.domain.exception.NombreNoValidoException;
-import com.example.Plazoleta.domain.exception.PropietarioNoValidoException;
-import com.example.Plazoleta.domain.exception.TelefonoNoValidoException;
-import com.example.Plazoleta.domain.model.Propietario;
+import com.example.Plazoleta.domain.exception.*;
+import com.example.Plazoleta.domain.model.AuthUser;
 import com.example.Plazoleta.domain.model.Restaurante;
+import com.example.Plazoleta.domain.spi.IAuthServicePort;
 import com.example.Plazoleta.domain.spi.IRestaurantePersistencePort;
-import com.example.Plazoleta.domain.spi.IUsuarioServicePort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,16 +14,22 @@ import org.springframework.stereotype.Service;
 public class RestauranteUseCase implements IRestauranteServicePort {
 
     private final IRestaurantePersistencePort restaurantePersistencePort;
-    private final IUsuarioServicePort usuarioServicePort;
+    private final IAuthServicePort authServicePort;
     private static final String REGEX_NUM = "\\d+";
     private static final String REGEX_CELULAR = "^\\+?\\d{1,12}$";
+    private static final String ROL_ADMIN = "ADMIN";
 
     @Override
-    public void crearRestaurante(Restaurante restaurante) {
-        // Verificar que el usuario sea propietario
-        Propietario propietario = usuarioServicePort.obtenerUsuarioPorId(restaurante.getId_propietario());
-        if (!propietario.getRolId().equals(2L)) {
-            throw new PropietarioNoValidoException();
+    public void crearRestaurante(Restaurante restaurante, String token) {
+        // Validar token y obtener usuario autenticado
+        AuthUser authUser = authServicePort.validateToken(token);
+        if (authUser == null || !Boolean.TRUE.equals(authUser.getValid())) {
+            throw new TokenNoValidoException();
+        }
+
+        // Verificar que el rol sea ADMIN
+        if (!ROL_ADMIN.equalsIgnoreCase(authUser.getRol())) {
+            throw new RolNoAutorizadoException();
         }
 
         // Verificar que el NIT sea numérico

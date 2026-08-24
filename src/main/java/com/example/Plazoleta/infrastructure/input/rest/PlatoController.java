@@ -22,10 +22,10 @@ public class PlatoController {
     @PostMapping("/plato")
     public ResponseEntity<Void> crearPlato(
             @Valid @RequestBody PlatoRequestDto platoRequestDto,
-            @RequestHeader("X-Propietario-Id") Long idPropietario) {
+            @RequestHeader("Authorization") String authorization) {
 
         Plato plato = platoRequestMapper.toPlato(platoRequestDto);
-        platoServicePort.crearPlato(plato, idPropietario);
+        platoServicePort.crearPlato(plato, authorization);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -33,9 +33,9 @@ public class PlatoController {
     public ResponseEntity<Void> actualizarPlato(
             @PathVariable Long id,
             @Valid @RequestBody PlatoUpdateDto platoUpdateDto,
-            @RequestHeader("X-Propietario-Id") Long idPropietario) {
+            @RequestHeader("Authorization") String authorization) {
 
-        platoServicePort.actualizarPlato(id, platoUpdateDto.getPrecio(), platoUpdateDto.getDescripcion(), idPropietario);
+        platoServicePort.actualizarPlato(id, platoUpdateDto.getPrecio(), platoUpdateDto.getDescripcion(), authorization);
         return ResponseEntity.ok().build();
     }
 }
