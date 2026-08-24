@@ -2,12 +2,8 @@ package com.example.Plazoleta.domain.usecase;
 
 import com.example.Plazoleta.domain.exception.PlatoNoExisteException;
 import com.example.Plazoleta.domain.exception.PropietarioNoEsDuenoException;
-import com.example.Plazoleta.domain.exception.RolNoAutorizadoException;
-import com.example.Plazoleta.domain.exception.TokenNoValidoException;
-import com.example.Plazoleta.domain.model.AuthUser;
 import com.example.Plazoleta.domain.model.Plato;
 import com.example.Plazoleta.domain.model.Restaurante;
-import com.example.Plazoleta.domain.spi.IAuthServicePort;
 import com.example.Plazoleta.domain.spi.IPlatoPersistencePort;
 import com.example.Plazoleta.domain.spi.IRestaurantePersistencePort;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,9 +29,6 @@ class PlatoEstadoUseCaseTest {
 
     @Mock
     private IRestaurantePersistencePort restaurantePersistencePort;
-
-    @Mock
-    private IAuthServicePort authServicePort;
 
     @InjectMocks
     private PlatoUseCase platoUseCase;
@@ -65,12 +58,10 @@ class PlatoEstadoUseCaseTest {
         @Test
         @DisplayName("Debe desactivar un plato activo")
         void cambiarEstado_desactivar_exitoso() {
-            AuthUser propietario = new AuthUser(true, "prop@mail.com", "PROPIETARIO", 10L);
-            when(authServicePort.validateToken("Bearer token")).thenReturn(propietario);
             when(platoPersistencePort.obtenerPlatoPorId(1L)).thenReturn(Optional.of(platoExistente));
             when(restaurantePersistencePort.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restaurante));
 
-            platoUseCase.cambiarEstadoPlato(1L, false, "Bearer token");
+            platoUseCase.cambiarEstadoPlato(1L, false, 10L);
 
             assertFalse(platoExistente.getActivo());
             verify(platoPersistencePort).guardarPlato(platoExistente);
@@ -80,12 +71,10 @@ class PlatoEstadoUseCaseTest {
         @DisplayName("Debe activar un plato inactivo")
         void cambiarEstado_activar_exitoso() {
             platoExistente.setActivo(false);
-            AuthUser propietario = new AuthUser(true, "prop@mail.com", "PROPIETARIO", 10L);
-            when(authServicePort.validateToken("Bearer token")).thenReturn(propietario);
             when(platoPersistencePort.obtenerPlatoPorId(1L)).thenReturn(Optional.of(platoExistente));
             when(restaurantePersistencePort.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restaurante));
 
-            platoUseCase.cambiarEstadoPlato(1L, true, "Bearer token");
+            platoUseCase.cambiarEstadoPlato(1L, true, 10L);
 
             assertTrue(platoExistente.getActivo());
             verify(platoPersistencePort).guardarPlato(platoExistente);
@@ -97,36 +86,12 @@ class PlatoEstadoUseCaseTest {
     class ValidacionPropietario {
 
         @Test
-        @DisplayName("Debe lanzar excepción cuando el token es inválido")
-        void cambiarEstado_tokenInvalido_lanzaExcepcion() {
-            AuthUser invalid = new AuthUser(false, null, null, null);
-            when(authServicePort.validateToken("Bearer bad")).thenReturn(invalid);
-
-            assertThrows(TokenNoValidoException.class,
-                    () -> platoUseCase.cambiarEstadoPlato(1L, false, "Bearer bad"));
-            verify(platoPersistencePort, never()).guardarPlato(any());
-        }
-
-        @Test
-        @DisplayName("Debe lanzar excepción cuando el rol no es PROPIETARIO")
-        void cambiarEstado_rolAdmin_lanzaExcepcion() {
-            AuthUser admin = new AuthUser(true, "admin@mail.com", "ADMIN", 1L);
-            when(authServicePort.validateToken("Bearer token")).thenReturn(admin);
-
-            assertThrows(RolNoAutorizadoException.class,
-                    () -> platoUseCase.cambiarEstadoPlato(1L, false, "Bearer token"));
-            verify(platoPersistencePort, never()).guardarPlato(any());
-        }
-
-        @Test
         @DisplayName("Debe lanzar excepción cuando el plato no existe")
         void cambiarEstado_platoNoExiste_lanzaExcepcion() {
-            AuthUser propietario = new AuthUser(true, "prop@mail.com", "PROPIETARIO", 10L);
-            when(authServicePort.validateToken("Bearer token")).thenReturn(propietario);
             when(platoPersistencePort.obtenerPlatoPorId(99L)).thenReturn(Optional.empty());
 
             assertThrows(PlatoNoExisteException.class,
-                    () -> platoUseCase.cambiarEstadoPlato(99L, false, "Bearer token"));
+                    () -> platoUseCase.cambiarEstadoPlato(99L, false, 10L));
             verify(platoPersistencePort, never()).guardarPlato(any());
         }
     }
@@ -138,13 +103,11 @@ class PlatoEstadoUseCaseTest {
         @Test
         @DisplayName("Debe lanzar excepción cuando el userId no es dueño del restaurante")
         void cambiarEstado_noEsDueno_lanzaExcepcion() {
-            AuthUser otroPropietario = new AuthUser(true, "otro@mail.com", "PROPIETARIO", 99L);
-            when(authServicePort.validateToken("Bearer token")).thenReturn(otroPropietario);
             when(platoPersistencePort.obtenerPlatoPorId(1L)).thenReturn(Optional.of(platoExistente));
             when(restaurantePersistencePort.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restaurante));
 
             assertThrows(PropietarioNoEsDuenoException.class,
-                    () -> platoUseCase.cambiarEstadoPlato(1L, false, "Bearer token"));
+                    () -> platoUseCase.cambiarEstadoPlato(1L, false, 99L));
             verify(platoPersistencePort, never()).guardarPlato(any());
         }
     }
