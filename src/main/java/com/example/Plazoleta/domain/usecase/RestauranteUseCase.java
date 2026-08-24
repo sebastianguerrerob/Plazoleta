@@ -3,6 +3,8 @@ package com.example.Plazoleta.domain.usecase;
 import com.example.Plazoleta.domain.api.IRestauranteServicePort;
 import com.example.Plazoleta.domain.exception.*;
 import com.example.Plazoleta.domain.model.AuthUser;
+import com.example.Plazoleta.domain.model.PaginatedResult;
+import com.example.Plazoleta.domain.model.PaginationRequest;
 import com.example.Plazoleta.domain.model.Restaurante;
 import com.example.Plazoleta.domain.spi.IAuthServicePort;
 import com.example.Plazoleta.domain.spi.IRestaurantePersistencePort;
@@ -48,5 +50,10 @@ public class RestauranteUseCase implements IRestauranteServicePort {
         }
 
         restaurantePersistencePort.guardarRestaurante(restaurante);
+    }
+
+    @Override
+    public PaginatedResult<Restaurante> listarRestaurantes(PaginationRequest paginationRequest) {
+        return restaurantePersistencePort.listarRestaurantesOrdenadosPorNombre(paginationRequest);
     }
 }
