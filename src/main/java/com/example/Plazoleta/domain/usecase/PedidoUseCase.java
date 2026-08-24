@@ -1,0 +1,52 @@
+package com.example.Plazoleta.domain.usecase;
+
+import com.example.Plazoleta.domain.api.IPedidoServicePort;
+import com.example.Plazoleta.domain.exception.DomainException;
+import com.example.Plazoleta.domain.exception.PedidoEnProcesoException;
+import com.example.Plazoleta.domain.exception.RestauranteNoExisteException;
+import com.example.Plazoleta.domain.model.EstadoPedido;
+import com.example.Plazoleta.domain.model.Pedido;
+import com.example.Plazoleta.domain.spi.IPedidoPersistencePort;
+import com.example.Plazoleta.domain.spi.IRestaurantePersistencePort;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class PedidoUseCase implements IPedidoServicePort {
+
+    private final IPedidoPersistencePort pedidoPersistencePort;
+    private final IRestaurantePersistencePort restaurantePersistencePort;
+
+    private static final List<EstadoPedido> ESTADOS_EN_PROCESO = List.of(
+            EstadoPedido.PENDIENTE,
+            EstadoPedido.EN_PREPARACION,
+            EstadoPedido.LISTO
+    );
+
+    @Override
+    public void crearPedido(Pedido pedido) {
+        // Validar que el restaurante exista
+        restaurantePersistencePort.obtenerRestaurantePorId(pedido.getIdRestaurante())
+                .orElseThrow(RestauranteNoExisteException::new);
+
+        // Validar que el pedido tenga platos
+        if (pedido.getPlatos() == null || pedido.getPlatos().isEmpty()) {
+            throw new DomainException("El pedido debe contener al menos un plato");
+        }
+
+        // Validar que el cliente no tenga un pedido en proceso
+        if (pedidoPersistencePort.existePedidoEnProceso(pedido.getIdCliente(), ESTADOS_EN_PROCESO)) {
+            throw new PedidoEnProcesoException();
+        }
+
+        // Establecer estado inicial y fecha
+        pedido.setEstado(EstadoPedido.PENDIENTE);
+        pedido.setFecha(LocalDate.now());
+
+        pedidoPersistencePort.guardarPedido(pedido);
+    }
+}
