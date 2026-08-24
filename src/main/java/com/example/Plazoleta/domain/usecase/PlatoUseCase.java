@@ -2,6 +2,8 @@ package com.example.Plazoleta.domain.usecase;
 
 import com.example.Plazoleta.domain.api.IPlatoServicePort;
 import com.example.Plazoleta.domain.exception.*;
+import com.example.Plazoleta.domain.model.PaginatedResult;
+import com.example.Plazoleta.domain.model.PaginationRequest;
 import com.example.Plazoleta.domain.model.Plato;
 import com.example.Plazoleta.domain.model.Restaurante;
 import com.example.Plazoleta.domain.spi.IPlatoPersistencePort;
@@ -69,5 +71,14 @@ public class PlatoUseCase implements IPlatoServicePort {
 
         plato.setActivo(activo);
         platoPersistencePort.guardarPlato(plato);
+    }
+
+    @Override
+    public PaginatedResult<Plato> listarPlatosPorRestaurante(Long idRestaurante, Long idCategoria, PaginationRequest paginationRequest) {
+        // Validar que el restaurante exista
+        restaurantePersistencePort.obtenerRestaurantePorId(idRestaurante)
+                .orElseThrow(RestauranteNoExisteException::new);
+
+        return platoPersistencePort.listarPlatosPorRestaurante(idRestaurante, idCategoria, paginationRequest);
     }
 }
