@@ -5,6 +5,6 @@ import com.example.Plazoleta.domain.model.PaginationRequest;
 import com.example.Plazoleta.domain.model.Restaurante;
 
 public interface IRestauranteServicePort {
-    void crearRestaurante(Restaurante restaurante, String token);
+    void crearRestaurante(Restaurante restaurante);
     PaginatedResult<Restaurante> listarRestaurantes(PaginationRequest paginationRequest);
 }
