@@ -38,4 +38,14 @@ public class PlatoController {
         platoServicePort.actualizarPlato(id, platoUpdateDto.getPrecio(), platoUpdateDto.getDescripcion(), authorization);
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping("/plato/{id}/estado")
+    public ResponseEntity<Void> cambiarEstadoPlato(
+            @PathVariable Long id,
+            @RequestParam Boolean activo,
+            @RequestHeader("Authorization") String authorization) {
+
+        platoServicePort.cambiarEstadoPlato(id, activo, authorization);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -67,6 +67,24 @@ public class PlatoUseCase implements IPlatoServicePort {
         platoPersistencePort.guardarPlato(plato);
     }
 
+    @Override
+    public void cambiarEstadoPlato(Long idPlato, Boolean activo, String token) {
+        AuthUser authUser = validatePropietario(token);
+
+        Plato plato = platoPersistencePort.obtenerPlatoPorId(idPlato)
+                .orElseThrow(PlatoNoExisteException::new);
+
+        Restaurante restaurante = restaurantePersistencePort.obtenerRestaurantePorId(plato.getIdRestaurante())
+                .orElseThrow(RestauranteNoExisteException::new);
+
+        if (restaurante.getId_propietario() != authUser.getUserId()) {
+            throw new PropietarioNoEsDuenoException();
+        }
+
+        plato.setActivo(activo);
+        platoPersistencePort.guardarPlato(plato);
+    }
+
     private AuthUser validatePropietario(String token) {
         AuthUser authUser = authServicePort.validateToken(token);
         if (authUser == null || !Boolean.TRUE.equals(authUser.getValid())) {
