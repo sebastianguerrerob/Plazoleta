@@ -4,7 +4,6 @@ import com.example.Plazoleta.domain.exception.DomainException;
 import com.example.Plazoleta.domain.model.PaginatedResult;
 import com.example.Plazoleta.domain.model.PaginationRequest;
 import com.example.Plazoleta.domain.model.Restaurante;
-import com.example.Plazoleta.domain.spi.IAuthServicePort;
 import com.example.Plazoleta.domain.spi.IRestaurantePersistencePort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -25,9 +24,6 @@ class RestauranteListarUseCaseTest {
 
     @Mock
     private IRestaurantePersistencePort restaurantePersistencePort;
-
-    @Mock
-    private IAuthServicePort authServicePort;
 
     @InjectMocks
     private RestauranteUseCase restauranteUseCase;
