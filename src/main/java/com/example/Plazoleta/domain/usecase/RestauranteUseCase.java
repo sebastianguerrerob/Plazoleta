@@ -41,4 +41,11 @@ public class RestauranteUseCase implements IRestauranteServicePort {
     public PaginatedResult<Restaurante> listarRestaurantes(PaginationRequest paginationRequest) {
         return restaurantePersistencePort.listarRestaurantesOrdenadosPorNombre(paginationRequest);
     }
+
+    @Override
+    public boolean validarPropietarioRestaurante(Long idRestaurante, Long idPropietario) {
+        return restaurantePersistencePort.obtenerRestaurantePorId(idRestaurante)
+                .map(restaurante -> restaurante.getId_propietario() == idPropietario)
+                .orElse(false);
+    }
 }

@@ -66,6 +66,15 @@ public class RestauranteController {
         return ResponseEntity.ok(respuesta);
     }
 
+    @GetMapping("/restaurante/{idRestaurante}/propietario/{idPropietario}/validar")
+    public ResponseEntity<java.util.Map<String, Boolean>> validarPropietario(
+            @PathVariable Long idRestaurante,
+            @PathVariable Long idPropietario) {
+
+        boolean esPropietario = restauranteServicePort.validarPropietarioRestaurante(idRestaurante, idPropietario);
+        return ResponseEntity.ok(java.util.Map.of("esPropietario", esPropietario));
+    }
+
     private AuthUser validateToken(String authorization) {
         AuthUser authUser = authServicePort.validateToken(authorization);
         if (authUser == null || !Boolean.TRUE.equals(authUser.getValid())) {
