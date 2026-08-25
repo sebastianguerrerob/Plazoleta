@@ -5,6 +5,8 @@ import com.example.Plazoleta.domain.exception.DomainException;
 import com.example.Plazoleta.domain.exception.PedidoEnProcesoException;
 import com.example.Plazoleta.domain.exception.RestauranteNoExisteException;
 import com.example.Plazoleta.domain.model.EstadoPedido;
+import com.example.Plazoleta.domain.model.PaginatedResult;
+import com.example.Plazoleta.domain.model.PaginationRequest;
 import com.example.Plazoleta.domain.model.Pedido;
 import com.example.Plazoleta.domain.spi.IPedidoPersistencePort;
 import com.example.Plazoleta.domain.spi.IRestaurantePersistencePort;
@@ -48,5 +50,10 @@ public class PedidoUseCase implements IPedidoServicePort {
         pedido.setFecha(LocalDate.now());
 
         pedidoPersistencePort.guardarPedido(pedido);
+    }
+
+    @Override
+    public PaginatedResult<Pedido> listarPedidosPorEstado(Long idRestaurante, EstadoPedido estado, PaginationRequest paginationRequest) {
+        return pedidoPersistencePort.listarPedidosPorRestauranteYEstado(idRestaurante, estado, paginationRequest);
     }
 }
