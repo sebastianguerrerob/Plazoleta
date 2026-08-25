@@ -25,7 +25,7 @@ public class PlatoUseCase implements IPlatoServicePort {
         Restaurante restaurante = restaurantePersistencePort.obtenerRestaurantePorId(plato.getIdRestaurante())
                 .orElseThrow(RestauranteNoExisteException::new);
 
-        if (restaurante.getId_propietario() != idPropietario) {
+        if (!restaurante.getIdPropietario().equals(idPropietario)) {
             throw new PropietarioNoEsDuenoException();
         }
 
@@ -41,7 +41,7 @@ public class PlatoUseCase implements IPlatoServicePort {
         Restaurante restaurante = restaurantePersistencePort.obtenerRestaurantePorId(plato.getIdRestaurante())
                 .orElseThrow(RestauranteNoExisteException::new);
 
-        if (restaurante.getId_propietario() != idPropietario) {
+        if (!restaurante.getIdPropietario().equals(idPropietario)) {
             throw new PropietarioNoEsDuenoException();
         }
 
@@ -63,7 +63,7 @@ public class PlatoUseCase implements IPlatoServicePort {
         Restaurante restaurante = restaurantePersistencePort.obtenerRestaurantePorId(plato.getIdRestaurante())
                 .orElseThrow(RestauranteNoExisteException::new);
 
-        if (restaurante.getId_propietario() != idPropietario) {
+        if (!restaurante.getIdPropietario().equals(idPropietario)) {
             throw new PropietarioNoEsDuenoException();
         }
 

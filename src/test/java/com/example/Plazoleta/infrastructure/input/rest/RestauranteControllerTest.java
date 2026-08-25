@@ -54,7 +54,7 @@ class RestauranteControllerTest {
         RestauranteRequestDto dto = new RestauranteRequestDto();
         dto.setNombre("Mi Restaurante");
         dto.setDireccion("Calle 123");
-        dto.setId_propietario(1L);
+        dto.setIdPropietario(1L);
         dto.setTelefono("+573005698325");
         dto.setUrlLogo("https://logo.com/img.png");
         dto.setNit("123456789");
@@ -171,10 +171,10 @@ class RestauranteControllerTest {
         }
 
         @Test
-        @DisplayName("Debe retornar 400 cuando el id_propietario es null")
+        @DisplayName("Debe retornar 400 cuando el idPropietario es null")
         void crearRestaurante_idPropietarioNull_retorna400() throws Exception {
             RestauranteRequestDto dto = crearDtoValido();
-            dto.setId_propietario(null);
+            dto.setIdPropietario(null);
 
             mockMvc.perform(post("/Plazoleta/restaurante")
                             .contentType(MediaType.APPLICATION_JSON)

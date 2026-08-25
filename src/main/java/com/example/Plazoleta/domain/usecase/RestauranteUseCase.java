@@ -43,7 +43,7 @@ public class RestauranteUseCase implements IRestauranteServicePort {
     @Override
     public boolean validarPropietarioRestaurante(Long idRestaurante, Long idPropietario) {
         return restaurantePersistencePort.obtenerRestaurantePorId(idRestaurante)
-                .map(restaurante -> restaurante.getId_propietario() == idPropietario)
+                .map(restaurante -> restaurante.getIdPropietario().equals(idPropietario))
                 .orElse(false);
     }
 }
