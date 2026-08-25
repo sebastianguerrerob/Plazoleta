@@ -1,18 +1,22 @@
 package com.example.Plazoleta.infrastructure.input.rest;
 
 import com.example.Plazoleta.application.dto.PedidoRequestDto;
+import com.example.Plazoleta.application.dto.PedidoResponseDto;
 import com.example.Plazoleta.application.mapper.IPedidoRequestMapper;
+import com.example.Plazoleta.application.mapper.IPedidoResponseMapper;
 import com.example.Plazoleta.domain.api.IPedidoServicePort;
 import com.example.Plazoleta.domain.exception.RolNoAutorizadoException;
 import com.example.Plazoleta.domain.exception.TokenNoValidoException;
-import com.example.Plazoleta.domain.model.AuthUser;
-import com.example.Plazoleta.domain.model.Pedido;
+import com.example.Plazoleta.domain.model.*;
 import com.example.Plazoleta.domain.spi.IAuthServicePort;
+import com.example.Plazoleta.domain.spi.IUsuarioServicePort;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/Plazoleta")
@@ -21,9 +25,12 @@ public class PedidoController {
 
     private final IPedidoServicePort pedidoServicePort;
     private final IPedidoRequestMapper pedidoRequestMapper;
+    private final IPedidoResponseMapper pedidoResponseMapper;
     private final IAuthServicePort authServicePort;
+    private final IUsuarioServicePort usuarioServicePort;
 
     private static final String ROL_CLIENTE = "CLIENTE";
+    private static final String ROL_EMPLEADO = "EMPLEADO";
 
     @PostMapping("/pedido")
     public ResponseEntity<Void> crearPedido(
@@ -38,6 +45,35 @@ public class PedidoController {
 
         pedidoServicePort.crearPedido(pedido);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/pedidos")
+    public ResponseEntity<PaginatedResult<PedidoResponseDto>> listarPedidosPorEstado(
+            @RequestParam EstadoPedido estado,
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "10") int tamano,
+            @RequestHeader("Authorization") String authorization) {
+
+        AuthUser authUser = validateToken(authorization);
+        validateRole(authUser, ROL_EMPLEADO);
+
+        // Obtener el restauranteId del empleado desde MS Usuarios
+        Long idRestaurante = usuarioServicePort.obtenerRestauranteIdDeEmpleado(authUser.getUserId());
+
+        PaginationRequest paginationRequest = new PaginationRequest(pagina, tamano);
+        PaginatedResult<Pedido> resultado = pedidoServicePort.listarPedidosPorEstado(idRestaurante, estado, paginationRequest);
+
+        List<PedidoResponseDto> contenidoDto = pedidoResponseMapper.toResponseDtoList(resultado.getContenido());
+
+        PaginatedResult<PedidoResponseDto> respuesta = new PaginatedResult<>(
+                contenidoDto,
+                resultado.getPagina(),
+                resultado.getTamano(),
+                resultado.getTotalElementos(),
+                resultado.getTotalPaginas()
+        );
+
+        return ResponseEntity.ok(respuesta);
     }
 
     private AuthUser validateToken(String authorization) {
