@@ -14,9 +14,7 @@ public class UsuarioFeignAdapter implements IUsuarioServicePort {
 
     @Override
     public Propietario obtenerUsuarioPorId(Long id) {
-
-        UsuarioResponse usuario =
-                usuarioFeignClient.obtenerUsuarioPorId(id);
+        UsuarioResponse usuario = usuarioFeignClient.obtenerUsuarioPorId(id);
 
         return new Propietario(
                 usuario.getId(),
@@ -24,5 +22,11 @@ public class UsuarioFeignAdapter implements IUsuarioServicePort {
                 usuario.getApellido(),
                 usuario.getRolId()
         );
+    }
+
+    @Override
+    public Long obtenerRestauranteIdDeEmpleado(Long idEmpleado) {
+        UsuarioResponse usuario = usuarioFeignClient.obtenerUsuarioPorId(idEmpleado);
+        return usuario.getRestauranteId();
     }
 }

@@ -12,4 +12,5 @@ public class UsuarioResponse {
     private String celular;
     private String correo;
     private Long rolId;
+    private Long restauranteId;
 }
