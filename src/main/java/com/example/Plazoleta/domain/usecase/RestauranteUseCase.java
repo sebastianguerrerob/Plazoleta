@@ -7,9 +7,7 @@ import com.example.Plazoleta.domain.model.PaginationRequest;
 import com.example.Plazoleta.domain.model.Restaurante;
 import com.example.Plazoleta.domain.spi.IRestaurantePersistencePort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class RestauranteUseCase implements IRestauranteServicePort {
 

@@ -11,12 +11,10 @@ import com.example.Plazoleta.domain.model.Pedido;
 import com.example.Plazoleta.domain.spi.IPedidoPersistencePort;
 import com.example.Plazoleta.domain.spi.IRestaurantePersistencePort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Service
 @RequiredArgsConstructor
 public class PedidoUseCase implements IPedidoServicePort {
 
