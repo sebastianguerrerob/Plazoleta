@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -35,16 +36,33 @@ public class PedidoJpaAdapter implements IPedidoPersistencePort {
     }
 
     @Override
+    public void actualizarPedido(Pedido pedido) {
+        pedidoRepository.findById(pedido.getId()).ifPresent(entity -> {
+            entity.setEstado(pedido.getEstado());
+            entity.setIdChef(pedido.getIdChef());
+            pedidoRepository.save(entity);
+        });
+    }
+
+    @Override
     public boolean existePedidoEnProceso(Long idCliente, List<EstadoPedido> estadosEnProceso) {
         return pedidoRepository.existsByIdClienteAndEstadoIn(idCliente, estadosEnProceso);
     }
 
     @Override
     public PaginatedResult<Pedido> listarPedidosPorRestauranteYEstado(Long idRestaurante, EstadoPedido estado, PaginationRequest paginationRequest) {
+        // Primero obtenemos los ids paginados
         PageRequest pageRequest = PageRequest.of(paginationRequest.getPagina(), paginationRequest.getTamano());
         Page<PedidoEntity> page = pedidoRepository.findByIdRestauranteAndEstado(idRestaurante, estado, pageRequest);
 
-        List<Pedido> pedidos = page.getContent().stream()
+        // Luego cargamos con platos usando los ids
+        List<Long> ids = page.getContent().stream().map(PedidoEntity::getId).toList();
+        List<PedidoEntity> entitiesWithPlatos = ids.isEmpty() ? List.of() :
+                pedidoRepository.findByIdRestauranteAndEstadoWithPlatos(idRestaurante, estado).stream()
+                        .filter(e -> ids.contains(e.getId()))
+                        .toList();
+
+        List<Pedido> pedidos = entitiesWithPlatos.stream()
                 .map(entity -> {
                     Pedido pedido = pedidoEntityMapper.toPedido(entity);
                     pedido.setPlatos(pedidoEntityMapper.toPedidoPlatoList(entity.getPlatos()));
@@ -59,5 +77,15 @@ public class PedidoJpaAdapter implements IPedidoPersistencePort {
                 page.getTotalElements(),
                 page.getTotalPages()
         );
+    }
+
+    @Override
+    public Optional<Pedido> obtenerPedidoPorId(Long id) {
+        return pedidoRepository.findByIdWithPlatos(id)
+                .map(entity -> {
+                    Pedido pedido = pedidoEntityMapper.toPedido(entity);
+                    pedido.setPlatos(pedidoEntityMapper.toPedidoPlatoList(entity.getPlatos()));
+                    return pedido;
+                });
     }
 }
