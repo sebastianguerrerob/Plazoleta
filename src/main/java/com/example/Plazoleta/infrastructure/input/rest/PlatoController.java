@@ -6,13 +6,11 @@ import com.example.Plazoleta.application.dto.PlatoUpdateDto;
 import com.example.Plazoleta.application.mapper.IPlatoRequestMapper;
 import com.example.Plazoleta.application.mapper.IPlatoResponseMapper;
 import com.example.Plazoleta.domain.api.IPlatoServicePort;
-import com.example.Plazoleta.domain.exception.RolNoAutorizadoException;
-import com.example.Plazoleta.domain.exception.TokenNoValidoException;
 import com.example.Plazoleta.domain.model.AuthUser;
 import com.example.Plazoleta.domain.model.PaginatedResult;
 import com.example.Plazoleta.domain.model.PaginationRequest;
 import com.example.Plazoleta.domain.model.Plato;
-import com.example.Plazoleta.domain.spi.IAuthServicePort;
+import com.example.Plazoleta.infrastructure.input.rest.util.AuthValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,18 +27,13 @@ public class PlatoController {
     private final IPlatoServicePort platoServicePort;
     private final IPlatoRequestMapper platoRequestMapper;
     private final IPlatoResponseMapper platoResponseMapper;
-    private final IAuthServicePort authServicePort;
-
-    private static final String ROL_PROPIETARIO = "PROPIETARIO";
+    private final AuthValidator authValidator;
 
     @PostMapping("/plato")
     public ResponseEntity<Void> crearPlato(
-            @Valid @RequestBody PlatoRequestDto platoRequestDto,
-            @RequestHeader("Authorization") String authorization) {
+            @Valid @RequestBody PlatoRequestDto platoRequestDto) {
 
-        AuthUser authUser = validateToken(authorization);
-        validateRole(authUser, ROL_PROPIETARIO);
-
+        AuthUser authUser = authValidator.getAuthenticatedUser();
         Plato plato = platoRequestMapper.toPlato(platoRequestDto);
         platoServicePort.crearPlato(plato, authUser.getUserId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -49,12 +42,9 @@ public class PlatoController {
     @PutMapping("/plato/{id}")
     public ResponseEntity<Void> actualizarPlato(
             @PathVariable Long id,
-            @Valid @RequestBody PlatoUpdateDto platoUpdateDto,
-            @RequestHeader("Authorization") String authorization) {
+            @Valid @RequestBody PlatoUpdateDto platoUpdateDto) {
 
-        AuthUser authUser = validateToken(authorization);
-        validateRole(authUser, ROL_PROPIETARIO);
-
+        AuthUser authUser = authValidator.getAuthenticatedUser();
         platoServicePort.actualizarPlato(id, platoUpdateDto.getPrecio(), platoUpdateDto.getDescripcion(), authUser.getUserId());
         return ResponseEntity.ok().build();
     }
@@ -62,12 +52,9 @@ public class PlatoController {
     @PatchMapping("/plato/{id}/estado")
     public ResponseEntity<Void> cambiarEstadoPlato(
             @PathVariable Long id,
-            @RequestParam Boolean activo,
-            @RequestHeader("Authorization") String authorization) {
+            @RequestParam Boolean activo) {
 
-        AuthUser authUser = validateToken(authorization);
-        validateRole(authUser, ROL_PROPIETARIO);
-
+        AuthUser authUser = authValidator.getAuthenticatedUser();
         platoServicePort.cambiarEstadoPlato(id, activo, authUser.getUserId());
         return ResponseEntity.ok().build();
     }
@@ -93,19 +80,5 @@ public class PlatoController {
         );
 
         return ResponseEntity.ok(respuesta);
-    }
-
-    private AuthUser validateToken(String authorization) {
-        AuthUser authUser = authServicePort.validateToken(authorization);
-        if (authUser == null || !Boolean.TRUE.equals(authUser.getValid())) {
-            throw new TokenNoValidoException();
-        }
-        return authUser;
-    }
-
-    private void validateRole(AuthUser authUser, String rolEsperado) {
-        if (!rolEsperado.equalsIgnoreCase(authUser.getRol())) {
-            throw new RolNoAutorizadoException();
-        }
     }
 }

@@ -2,13 +2,13 @@ package com.example.Plazoleta.infrastructure.input.rest;
 
 import com.example.Plazoleta.application.dto.RestauranteRequestDto;
 import com.example.Plazoleta.application.mapper.IRestauranteRequestMapper;
+import com.example.Plazoleta.application.mapper.IRestauranteResponseMapper;
 import com.example.Plazoleta.domain.api.IRestauranteServicePort;
 import com.example.Plazoleta.domain.exception.NitNoNumericoException;
 import com.example.Plazoleta.domain.exception.NombreNoValidoException;
-import com.example.Plazoleta.domain.exception.PropietarioNoValidoException;
 import com.example.Plazoleta.domain.exception.TelefonoNoValidoException;
 import com.example.Plazoleta.domain.model.Restaurante;
-import com.example.Plazoleta.infrastructure.input.rest.handler.RestauranteExceptionHandler;
+import com.example.Plazoleta.infrastructure.input.rest.handler.GlobalExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +36,9 @@ class RestauranteControllerTest {
     @Mock
     private IRestauranteRequestMapper restauranteRequestMapper;
 
+    @Mock
+    private IRestauranteResponseMapper restauranteResponseMapper;
+
     @InjectMocks
     private RestauranteController restauranteController;
 
@@ -45,7 +48,7 @@ class RestauranteControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(restauranteController)
-                .setControllerAdvice(new RestauranteExceptionHandler())
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
         objectMapper = new ObjectMapper();
     }
@@ -54,7 +57,7 @@ class RestauranteControllerTest {
         RestauranteRequestDto dto = new RestauranteRequestDto();
         dto.setNombre("Mi Restaurante");
         dto.setDireccion("Calle 123");
-        dto.setId_propietario(1L);
+        dto.setIdPropietario(1L);
         dto.setTelefono("+573005698325");
         dto.setUrlLogo("https://logo.com/img.png");
         dto.setNit("123456789");
@@ -171,10 +174,10 @@ class RestauranteControllerTest {
         }
 
         @Test
-        @DisplayName("Debe retornar 400 cuando el id_propietario es null")
+        @DisplayName("Debe retornar 400 cuando el idPropietario es null")
         void crearRestaurante_idPropietarioNull_retorna400() throws Exception {
             RestauranteRequestDto dto = crearDtoValido();
-            dto.setId_propietario(null);
+            dto.setIdPropietario(null);
 
             mockMvc.perform(post("/Plazoleta/restaurante")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -188,22 +191,6 @@ class RestauranteControllerTest {
     @Nested
     @DisplayName("POST /Plazoleta/restaurante - Excepciones de dominio")
     class ExcepcionesDeDominio {
-
-        @Test
-        @DisplayName("Debe retornar 403 cuando el usuario no es propietario")
-        void crearRestaurante_noEsPropietario_retorna403() throws Exception {
-            RestauranteRequestDto dto = crearDtoValido();
-            when(restauranteRequestMapper.toRestaurante(any(RestauranteRequestDto.class)))
-                    .thenReturn(new Restaurante());
-            doThrow(new PropietarioNoValidoException())
-                    .when(restauranteServicePort).crearRestaurante(any(Restaurante.class));
-
-            mockMvc.perform(post("/Plazoleta/restaurante")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(dto)))
-                    .andExpect(status().isForbidden())
-                    .andExpect(jsonPath("$.error").value("El usuario no tiene el rol de propietario"));
-        }
 
         @Test
         @DisplayName("Debe retornar 400 cuando el NIT no es numérico")

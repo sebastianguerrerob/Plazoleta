@@ -16,7 +16,7 @@ public class RestauranteRequestDto {
     private String direccion;
 
     @NotNull(message = "El id del propietario es obligatorio")
-    private Long id_propietario;
+    private Long idPropietario;
 
     @NotBlank(message = "El teléfono es obligatorio")
     private String telefono;

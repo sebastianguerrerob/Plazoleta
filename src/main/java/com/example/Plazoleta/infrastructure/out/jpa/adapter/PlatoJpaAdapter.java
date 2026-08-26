@@ -58,4 +58,10 @@ public class PlatoJpaAdapter implements IPlatoPersistencePort {
                 page.getTotalPages()
         );
     }
+
+    @Override
+    public boolean todosLosPlatosPertenecenAlRestaurante(List<Long> idPlatos, Long idRestaurante) {
+        long count = platoRepository.countByIdInAndIdRestaurante(idPlatos, idRestaurante);
+        return count == idPlatos.size();
+    }
 }

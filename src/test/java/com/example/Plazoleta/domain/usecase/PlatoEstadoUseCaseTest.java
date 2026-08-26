@@ -48,7 +48,7 @@ class PlatoEstadoUseCaseTest {
         restaurante = new Restaurante();
         restaurante.setId(1L);
         restaurante.setNombre("Mi Restaurante");
-        restaurante.setId_propietario(10L);
+        restaurante.setIdPropietario(10L);
     }
 
     @Nested

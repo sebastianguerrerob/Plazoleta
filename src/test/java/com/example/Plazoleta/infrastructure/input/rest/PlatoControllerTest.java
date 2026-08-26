@@ -2,12 +2,15 @@ package com.example.Plazoleta.infrastructure.input.rest;
 
 import com.example.Plazoleta.application.dto.PlatoRequestDto;
 import com.example.Plazoleta.application.mapper.IPlatoRequestMapper;
+import com.example.Plazoleta.application.mapper.IPlatoResponseMapper;
 import com.example.Plazoleta.domain.api.IPlatoServicePort;
 import com.example.Plazoleta.domain.exception.PrecioNoValidoException;
 import com.example.Plazoleta.domain.exception.PropietarioNoEsDuenoException;
 import com.example.Plazoleta.domain.exception.RestauranteNoExisteException;
+import com.example.Plazoleta.domain.model.AuthUser;
 import com.example.Plazoleta.domain.model.Plato;
-import com.example.Plazoleta.infrastructure.input.rest.handler.RestauranteExceptionHandler;
+import com.example.Plazoleta.infrastructure.input.rest.handler.GlobalExceptionHandler;
+import com.example.Plazoleta.infrastructure.input.rest.util.AuthValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +39,12 @@ class PlatoControllerTest {
     @Mock
     private IPlatoRequestMapper platoRequestMapper;
 
+    @Mock
+    private IPlatoResponseMapper platoResponseMapper;
+
+    @Mock
+    private AuthValidator authValidator;
+
     @InjectMocks
     private PlatoController platoController;
 
@@ -45,9 +54,12 @@ class PlatoControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(platoController)
-                .setControllerAdvice(new RestauranteExceptionHandler())
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
         objectMapper = new ObjectMapper();
+
+        AuthUser authUser = new AuthUser(true, "prop@mail.com", "PROPIETARIO", 10L);
+        when(authValidator.getAuthenticatedUser()).thenReturn(authUser);
     }
 
     private PlatoRequestDto crearDtoValido() {
@@ -74,7 +86,6 @@ class PlatoControllerTest {
 
             mockMvc.perform(post("/Plazoleta/plato")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .header("X-Propietario-Id", 10L)
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isCreated());
 
@@ -94,7 +105,6 @@ class PlatoControllerTest {
 
             mockMvc.perform(post("/Plazoleta/plato")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .header("X-Propietario-Id", 10L)
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest());
 
@@ -109,7 +119,6 @@ class PlatoControllerTest {
 
             mockMvc.perform(post("/Plazoleta/plato")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .header("X-Propietario-Id", 10L)
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest());
 
@@ -124,7 +133,6 @@ class PlatoControllerTest {
 
             mockMvc.perform(post("/Plazoleta/plato")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .header("X-Propietario-Id", 10L)
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest());
 
@@ -139,7 +147,6 @@ class PlatoControllerTest {
 
             mockMvc.perform(post("/Plazoleta/plato")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .header("X-Propietario-Id", 10L)
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest());
 
@@ -154,7 +161,6 @@ class PlatoControllerTest {
 
             mockMvc.perform(post("/Plazoleta/plato")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .header("X-Propietario-Id", 10L)
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest());
 
@@ -169,7 +175,6 @@ class PlatoControllerTest {
 
             mockMvc.perform(post("/Plazoleta/plato")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .header("X-Propietario-Id", 10L)
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest());
 
@@ -184,7 +189,6 @@ class PlatoControllerTest {
 
             mockMvc.perform(post("/Plazoleta/plato")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .header("X-Propietario-Id", 10L)
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest());
 
@@ -206,15 +210,14 @@ class PlatoControllerTest {
 
             mockMvc.perform(post("/Plazoleta/plato")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .header("X-Propietario-Id", 10L)
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isForbidden())
                     .andExpect(jsonPath("$.error").value("El usuario no es propietario de este restaurante"));
         }
 
         @Test
-        @DisplayName("Debe retornar 400 cuando el restaurante no existe")
-        void crearPlato_restauranteNoExiste_retorna400() throws Exception {
+        @DisplayName("Debe retornar 404 cuando el restaurante no existe")
+        void crearPlato_restauranteNoExiste_retorna404() throws Exception {
             PlatoRequestDto dto = crearDtoValido();
             when(platoRequestMapper.toPlato(any(PlatoRequestDto.class))).thenReturn(new Plato());
             doThrow(new RestauranteNoExisteException())
@@ -222,9 +225,8 @@ class PlatoControllerTest {
 
             mockMvc.perform(post("/Plazoleta/plato")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .header("X-Propietario-Id", 10L)
                             .content(objectMapper.writeValueAsString(dto)))
-                    .andExpect(status().isBadRequest())
+                    .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("El restaurante no existe"));
         }
 
@@ -238,7 +240,6 @@ class PlatoControllerTest {
 
             mockMvc.perform(post("/Plazoleta/plato")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .header("X-Propietario-Id", 10L)
                             .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("El precio debe ser un número entero positivo mayor a 0"));

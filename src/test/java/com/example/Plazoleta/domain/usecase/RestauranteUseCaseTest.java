@@ -35,7 +35,7 @@ class RestauranteUseCaseTest {
         restauranteValido = new Restaurante();
         restauranteValido.setNombre("Mi Restaurante");
         restauranteValido.setDireccion("Calle 123");
-        restauranteValido.setId_propietario(1L);
+        restauranteValido.setIdPropietario(1L);
         restauranteValido.setTelefono("+573005698325");
         restauranteValido.setUrlLogo("https://logo.com/img.png");
         restauranteValido.setNit("123456789");

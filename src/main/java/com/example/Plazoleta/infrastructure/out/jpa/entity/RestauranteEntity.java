@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 @Entity
 @Table(name = "restaurantes")
 @NoArgsConstructor
@@ -19,9 +18,10 @@ public class RestauranteEntity {
     private Long id;
     private String nombre;
     private String direccion;
-    private long id_propietario;
+    @Column(name = "id_propietario")
+    private Long idPropietario;
     private String telefono;
     private String urlLogo;
-    @Column(unique = true,nullable = false)
+    @Column(unique = true, nullable = false)
     private String nit;
 }

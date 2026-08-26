@@ -9,9 +9,7 @@ import com.example.Plazoleta.domain.model.Restaurante;
 import com.example.Plazoleta.domain.spi.IPlatoPersistencePort;
 import com.example.Plazoleta.domain.spi.IRestaurantePersistencePort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class PlatoUseCase implements IPlatoServicePort {
 
@@ -24,12 +22,7 @@ public class PlatoUseCase implements IPlatoServicePort {
             throw new PrecioNoValidoException();
         }
 
-        Restaurante restaurante = restaurantePersistencePort.obtenerRestaurantePorId(plato.getIdRestaurante())
-                .orElseThrow(RestauranteNoExisteException::new);
-
-        if (restaurante.getId_propietario() != idPropietario) {
-            throw new PropietarioNoEsDuenoException();
-        }
+        validarPropietarioRestaurante(plato.getIdRestaurante(), idPropietario);
 
         plato.setActivo(true);
         platoPersistencePort.guardarPlato(plato);
@@ -40,12 +33,7 @@ public class PlatoUseCase implements IPlatoServicePort {
         Plato plato = platoPersistencePort.obtenerPlatoPorId(idPlato)
                 .orElseThrow(PlatoNoExisteException::new);
 
-        Restaurante restaurante = restaurantePersistencePort.obtenerRestaurantePorId(plato.getIdRestaurante())
-                .orElseThrow(RestauranteNoExisteException::new);
-
-        if (restaurante.getId_propietario() != idPropietario) {
-            throw new PropietarioNoEsDuenoException();
-        }
+        validarPropietarioRestaurante(plato.getIdRestaurante(), idPropietario);
 
         if (precio == null || precio <= 0) {
             throw new PrecioNoValidoException();
@@ -62,12 +50,7 @@ public class PlatoUseCase implements IPlatoServicePort {
         Plato plato = platoPersistencePort.obtenerPlatoPorId(idPlato)
                 .orElseThrow(PlatoNoExisteException::new);
 
-        Restaurante restaurante = restaurantePersistencePort.obtenerRestaurantePorId(plato.getIdRestaurante())
-                .orElseThrow(RestauranteNoExisteException::new);
-
-        if (restaurante.getId_propietario() != idPropietario) {
-            throw new PropietarioNoEsDuenoException();
-        }
+        validarPropietarioRestaurante(plato.getIdRestaurante(), idPropietario);
 
         plato.setActivo(activo);
         platoPersistencePort.guardarPlato(plato);
@@ -75,10 +58,18 @@ public class PlatoUseCase implements IPlatoServicePort {
 
     @Override
     public PaginatedResult<Plato> listarPlatosPorRestaurante(Long idRestaurante, Long idCategoria, PaginationRequest paginationRequest) {
-        // Validar que el restaurante exista
         restaurantePersistencePort.obtenerRestaurantePorId(idRestaurante)
                 .orElseThrow(RestauranteNoExisteException::new);
 
         return platoPersistencePort.listarPlatosPorRestaurante(idRestaurante, idCategoria, paginationRequest);
+    }
+
+    private void validarPropietarioRestaurante(Long idRestaurante, Long idPropietario) {
+        Restaurante restaurante = restaurantePersistencePort.obtenerRestaurantePorId(idRestaurante)
+                .orElseThrow(RestauranteNoExisteException::new);
+
+        if (!restaurante.getIdPropietario().equals(idPropietario)) {
+            throw new PropietarioNoEsDuenoException();
+        }
     }
 }
