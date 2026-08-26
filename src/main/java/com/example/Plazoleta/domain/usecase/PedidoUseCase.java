@@ -3,6 +3,7 @@ package com.example.Plazoleta.domain.usecase;
 import com.example.Plazoleta.domain.api.IPedidoServicePort;
 import com.example.Plazoleta.domain.exception.DomainException;
 import com.example.Plazoleta.domain.exception.PedidoEnProcesoException;
+import com.example.Plazoleta.domain.exception.PedidoNoExisteException;
 import com.example.Plazoleta.domain.exception.RestauranteNoExisteException;
 import com.example.Plazoleta.domain.model.EstadoPedido;
 import com.example.Plazoleta.domain.model.PaginatedResult;
@@ -64,5 +65,26 @@ public class PedidoUseCase implements IPedidoServicePort {
     @Override
     public PaginatedResult<Pedido> listarPedidosPorEstado(Long idRestaurante, EstadoPedido estado, PaginationRequest paginationRequest) {
         return pedidoPersistencePort.listarPedidosPorRestauranteYEstado(idRestaurante, estado, paginationRequest);
+    }
+
+    @Override
+    public void asignarPedido(Long idPedido, Long idEmpleado, Long idRestaurante) {
+        Pedido pedido = pedidoPersistencePort.obtenerPedidoPorId(idPedido)
+                .orElseThrow(PedidoNoExisteException::new);
+
+        // Verificar que el pedido pertenezca al restaurante del empleado
+        if (!pedido.getIdRestaurante().equals(idRestaurante)) {
+            throw new DomainException("El pedido no pertenece al restaurante del empleado");
+        }
+
+        // Solo se puede asignar un pedido en estado PENDIENTE
+        if (pedido.getEstado() != EstadoPedido.PENDIENTE) {
+            throw new DomainException("Solo se puede asignar un pedido en estado PENDIENTE");
+        }
+
+        pedido.setIdChef(idEmpleado);
+        pedido.setEstado(EstadoPedido.EN_PREPARACION);
+
+        pedidoPersistencePort.guardarPedido(pedido);
     }
 }
