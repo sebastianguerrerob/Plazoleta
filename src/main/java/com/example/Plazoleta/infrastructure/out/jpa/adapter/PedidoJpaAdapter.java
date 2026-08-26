@@ -73,7 +73,7 @@ public class PedidoJpaAdapter implements IPedidoPersistencePort {
 
     @Override
     public Optional<Pedido> obtenerPedidoPorId(Long id) {
-        return pedidoRepository.findById(id)
+        return pedidoRepository.findByIdWithPlatos(id)
                 .map(entity -> {
                     Pedido pedido = pedidoEntityMapper.toPedido(entity);
                     pedido.setPlatos(pedidoEntityMapper.toPedidoPlatoList(entity.getPlatos()));
