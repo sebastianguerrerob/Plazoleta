@@ -9,6 +9,7 @@ import com.example.Plazoleta.domain.model.PaginatedResult;
 import com.example.Plazoleta.domain.model.PaginationRequest;
 import com.example.Plazoleta.domain.model.Pedido;
 import com.example.Plazoleta.domain.spi.IPedidoPersistencePort;
+import com.example.Plazoleta.domain.spi.IPlatoPersistencePort;
 import com.example.Plazoleta.domain.spi.IRestaurantePersistencePort;
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +21,7 @@ public class PedidoUseCase implements IPedidoServicePort {
 
     private final IPedidoPersistencePort pedidoPersistencePort;
     private final IRestaurantePersistencePort restaurantePersistencePort;
+    private final IPlatoPersistencePort platoPersistencePort;
 
     private static final List<EstadoPedido> ESTADOS_EN_PROCESO = List.of(
             EstadoPedido.PENDIENTE,
@@ -36,6 +38,15 @@ public class PedidoUseCase implements IPedidoServicePort {
         // Validar que el pedido tenga platos
         if (pedido.getPlatos() == null || pedido.getPlatos().isEmpty()) {
             throw new DomainException("El pedido debe contener al menos un plato");
+        }
+
+        // Validar que todos los platos pertenezcan al restaurante
+        List<Long> idPlatos = pedido.getPlatos().stream()
+                .map(plato -> plato.getIdPlato())
+                .toList();
+
+        if (!platoPersistencePort.todosLosPlatosPertenecenAlRestaurante(idPlatos, pedido.getIdRestaurante())) {
+            throw new DomainException("Todos los platos deben pertenecer al restaurante del pedido");
         }
 
         // Validar que el cliente no tenga un pedido en proceso

@@ -28,7 +28,8 @@ public class BeanConfiguration {
 
     @Bean
     public IPedidoServicePort pedidoServicePort(IPedidoPersistencePort pedidoPersistencePort,
-                                                IRestaurantePersistencePort restaurantePersistencePort) {
-        return new PedidoUseCase(pedidoPersistencePort, restaurantePersistencePort);
+                                                IRestaurantePersistencePort restaurantePersistencePort,
+                                                IPlatoPersistencePort platoPersistencePort) {
+        return new PedidoUseCase(pedidoPersistencePort, restaurantePersistencePort, platoPersistencePort);
     }
 }
