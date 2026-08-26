@@ -64,4 +64,14 @@ public class PedidoController {
 
         return ResponseEntity.ok(respuesta);
     }
+
+    @PatchMapping("/pedido/{idPedido}/asignar")
+    public ResponseEntity<Void> asignarPedido(@PathVariable Long idPedido) {
+
+        AuthUser authUser = authValidator.getAuthenticatedUser();
+        Long idRestaurante = usuarioServicePort.obtenerRestauranteIdDeEmpleado(authUser.getUserId());
+
+        pedidoServicePort.asignarPedido(idPedido, authUser.getUserId(), idRestaurante);
+        return ResponseEntity.ok().build();
+    }
 }

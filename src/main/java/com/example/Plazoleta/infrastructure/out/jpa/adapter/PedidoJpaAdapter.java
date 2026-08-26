@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -59,5 +60,15 @@ public class PedidoJpaAdapter implements IPedidoPersistencePort {
                 page.getTotalElements(),
                 page.getTotalPages()
         );
+    }
+
+    @Override
+    public Optional<Pedido> obtenerPedidoPorId(Long id) {
+        return pedidoRepository.findById(id)
+                .map(entity -> {
+                    Pedido pedido = pedidoEntityMapper.toPedido(entity);
+                    pedido.setPlatos(pedidoEntityMapper.toPedidoPlatoList(entity.getPlatos()));
+                    return pedido;
+                });
     }
 }
