@@ -27,15 +27,11 @@ public class PedidoController {
     private final IUsuarioServicePort usuarioServicePort;
     private final AuthValidator authValidator;
 
-    private static final String ROL_CLIENTE = "CLIENTE";
-    private static final String ROL_EMPLEADO = "EMPLEADO";
-
     @PostMapping("/pedido")
     public ResponseEntity<Void> crearPedido(
-            @Valid @RequestBody PedidoRequestDto pedidoRequestDto,
-            @RequestHeader("Authorization") String authorization) {
+            @Valid @RequestBody PedidoRequestDto pedidoRequestDto) {
 
-        AuthUser authUser = authValidator.validateTokenAndRole(authorization, ROL_CLIENTE);
+        AuthUser authUser = authValidator.getAuthenticatedUser();
 
         Pedido pedido = pedidoRequestMapper.toPedido(pedidoRequestDto);
         pedido.setIdCliente(authUser.getUserId());
@@ -48,11 +44,9 @@ public class PedidoController {
     public ResponseEntity<PaginatedResult<PedidoResponseDto>> listarPedidosPorEstado(
             @RequestParam EstadoPedido estado,
             @RequestParam(defaultValue = "0") int pagina,
-            @RequestParam(defaultValue = "10") int tamano,
-            @RequestHeader("Authorization") String authorization) {
+            @RequestParam(defaultValue = "10") int tamano) {
 
-        AuthUser authUser = authValidator.validateTokenAndRole(authorization, ROL_EMPLEADO);
-
+        AuthUser authUser = authValidator.getAuthenticatedUser();
         Long idRestaurante = usuarioServicePort.obtenerRestauranteIdDeEmpleado(authUser.getUserId());
 
         PaginationRequest paginationRequest = new PaginationRequest(pagina, tamano);

@@ -8,7 +8,6 @@ import com.example.Plazoleta.domain.api.IRestauranteServicePort;
 import com.example.Plazoleta.domain.model.PaginatedResult;
 import com.example.Plazoleta.domain.model.PaginationRequest;
 import com.example.Plazoleta.domain.model.Restaurante;
-import com.example.Plazoleta.infrastructure.input.rest.util.AuthValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,16 +25,10 @@ public class RestauranteController {
     private final IRestauranteServicePort restauranteServicePort;
     private final IRestauranteRequestMapper restauranteRequestMapper;
     private final IRestauranteResponseMapper restauranteResponseMapper;
-    private final AuthValidator authValidator;
-
-    private static final String ROL_ADMIN = "ADMIN";
 
     @PostMapping("/restaurante")
     public ResponseEntity<Void> crearRestaurante(
-            @Valid @RequestBody RestauranteRequestDto restauranteRequestDto,
-            @RequestHeader("Authorization") String authorization) {
-
-        authValidator.validateTokenAndRole(authorization, ROL_ADMIN);
+            @Valid @RequestBody RestauranteRequestDto restauranteRequestDto) {
 
         restauranteServicePort.crearRestaurante(
                 restauranteRequestMapper.toRestaurante(restauranteRequestDto));

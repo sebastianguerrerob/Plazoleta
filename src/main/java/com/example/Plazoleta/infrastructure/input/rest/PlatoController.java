@@ -29,15 +29,11 @@ public class PlatoController {
     private final IPlatoResponseMapper platoResponseMapper;
     private final AuthValidator authValidator;
 
-    private static final String ROL_PROPIETARIO = "PROPIETARIO";
-
     @PostMapping("/plato")
     public ResponseEntity<Void> crearPlato(
-            @Valid @RequestBody PlatoRequestDto platoRequestDto,
-            @RequestHeader("Authorization") String authorization) {
+            @Valid @RequestBody PlatoRequestDto platoRequestDto) {
 
-        AuthUser authUser = authValidator.validateTokenAndRole(authorization, ROL_PROPIETARIO);
-
+        AuthUser authUser = authValidator.getAuthenticatedUser();
         Plato plato = platoRequestMapper.toPlato(platoRequestDto);
         platoServicePort.crearPlato(plato, authUser.getUserId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -46,11 +42,9 @@ public class PlatoController {
     @PutMapping("/plato/{id}")
     public ResponseEntity<Void> actualizarPlato(
             @PathVariable Long id,
-            @Valid @RequestBody PlatoUpdateDto platoUpdateDto,
-            @RequestHeader("Authorization") String authorization) {
+            @Valid @RequestBody PlatoUpdateDto platoUpdateDto) {
 
-        AuthUser authUser = authValidator.validateTokenAndRole(authorization, ROL_PROPIETARIO);
-
+        AuthUser authUser = authValidator.getAuthenticatedUser();
         platoServicePort.actualizarPlato(id, platoUpdateDto.getPrecio(), platoUpdateDto.getDescripcion(), authUser.getUserId());
         return ResponseEntity.ok().build();
     }
@@ -58,11 +52,9 @@ public class PlatoController {
     @PatchMapping("/plato/{id}/estado")
     public ResponseEntity<Void> cambiarEstadoPlato(
             @PathVariable Long id,
-            @RequestParam Boolean activo,
-            @RequestHeader("Authorization") String authorization) {
+            @RequestParam Boolean activo) {
 
-        AuthUser authUser = authValidator.validateTokenAndRole(authorization, ROL_PROPIETARIO);
-
+        AuthUser authUser = authValidator.getAuthenticatedUser();
         platoServicePort.cambiarEstadoPlato(id, activo, authUser.getUserId());
         return ResponseEntity.ok().build();
     }
