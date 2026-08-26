@@ -19,5 +19,6 @@ public class Pedido {
     private EstadoPedido estado;
     private Long idChef;
     private Long idRestaurante;
+    private String pin;
     private List<PedidoPlato> platos;
 }
