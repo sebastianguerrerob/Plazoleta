@@ -51,10 +51,18 @@ public class PedidoJpaAdapter implements IPedidoPersistencePort {
 
     @Override
     public PaginatedResult<Pedido> listarPedidosPorRestauranteYEstado(Long idRestaurante, EstadoPedido estado, PaginationRequest paginationRequest) {
+        // Primero obtenemos los ids paginados
         PageRequest pageRequest = PageRequest.of(paginationRequest.getPagina(), paginationRequest.getTamano());
         Page<PedidoEntity> page = pedidoRepository.findByIdRestauranteAndEstado(idRestaurante, estado, pageRequest);
 
-        List<Pedido> pedidos = page.getContent().stream()
+        // Luego cargamos con platos usando los ids
+        List<Long> ids = page.getContent().stream().map(PedidoEntity::getId).toList();
+        List<PedidoEntity> entitiesWithPlatos = ids.isEmpty() ? List.of() :
+                pedidoRepository.findByIdRestauranteAndEstadoWithPlatos(idRestaurante, estado).stream()
+                        .filter(e -> ids.contains(e.getId()))
+                        .toList();
+
+        List<Pedido> pedidos = entitiesWithPlatos.stream()
                 .map(entity -> {
                     Pedido pedido = pedidoEntityMapper.toPedido(entity);
                     pedido.setPlatos(pedidoEntityMapper.toPedidoPlatoList(entity.getPlatos()));
