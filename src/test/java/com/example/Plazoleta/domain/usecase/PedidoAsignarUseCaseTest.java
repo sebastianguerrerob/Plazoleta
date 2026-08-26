@@ -66,7 +66,7 @@ class PedidoAsignarUseCaseTest {
 
             assertEquals(10L, pedidoPendiente.getIdChef());
             assertEquals(EstadoPedido.EN_PREPARACION, pedidoPendiente.getEstado());
-            verify(pedidoPersistencePort).guardarPedido(pedidoPendiente);
+            verify(pedidoPersistencePort).actualizarPedido(pedidoPendiente);
         }
     }
 

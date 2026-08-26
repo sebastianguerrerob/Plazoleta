@@ -36,6 +36,15 @@ public class PedidoJpaAdapter implements IPedidoPersistencePort {
     }
 
     @Override
+    public void actualizarPedido(Pedido pedido) {
+        pedidoRepository.findById(pedido.getId()).ifPresent(entity -> {
+            entity.setEstado(pedido.getEstado());
+            entity.setIdChef(pedido.getIdChef());
+            pedidoRepository.save(entity);
+        });
+    }
+
+    @Override
     public boolean existePedidoEnProceso(Long idCliente, List<EstadoPedido> estadosEnProceso) {
         return pedidoRepository.existsByIdClienteAndEstadoIn(idCliente, estadosEnProceso);
     }

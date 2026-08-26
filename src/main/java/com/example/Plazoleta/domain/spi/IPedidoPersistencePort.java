@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface IPedidoPersistencePort {
     void guardarPedido(Pedido pedido);
+    void actualizarPedido(Pedido pedido);
     boolean existePedidoEnProceso(Long idCliente, List<EstadoPedido> estadosEnProceso);
     PaginatedResult<Pedido> listarPedidosPorRestauranteYEstado(Long idRestaurante, EstadoPedido estado, PaginationRequest paginationRequest);
     Optional<Pedido> obtenerPedidoPorId(Long id);

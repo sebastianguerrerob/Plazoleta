@@ -85,6 +85,6 @@ public class PedidoUseCase implements IPedidoServicePort {
         pedido.setIdChef(idEmpleado);
         pedido.setEstado(EstadoPedido.EN_PREPARACION);
 
-        pedidoPersistencePort.guardarPedido(pedido);
+        pedidoPersistencePort.actualizarPedido(pedido);
     }
 }
