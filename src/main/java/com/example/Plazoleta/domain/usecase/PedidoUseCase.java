@@ -69,12 +69,7 @@ public class PedidoUseCase implements IPedidoServicePort {
 
     @Override
     public void asignarPedido(Long idPedido, Long idEmpleado, Long idRestaurante) {
-        Pedido pedido = pedidoPersistencePort.obtenerPedidoPorId(idPedido)
-                .orElseThrow(PedidoNoExisteException::new);
-
-        if (!pedido.getIdRestaurante().equals(idRestaurante)) {
-            throw new DomainException("El pedido no pertenece al restaurante del empleado");
-        }
+        Pedido pedido = obtenerPedidoDelRestaurante(idPedido, idRestaurante);
 
         if (pedido.getEstado() != EstadoPedido.PENDIENTE) {
             throw new DomainException("Solo se puede asignar un pedido en estado PENDIENTE");
@@ -88,6 +83,40 @@ public class PedidoUseCase implements IPedidoServicePort {
 
     @Override
     public void marcarPedidoListo(Long idPedido, Long idRestaurante) {
+        Pedido pedido = obtenerPedidoDelRestaurante(idPedido, idRestaurante);
+
+        if (pedido.getEstado() != EstadoPedido.EN_PREPARACION) {
+            throw new DomainException("Solo se puede marcar como listo un pedido en estado EN_PREPARACION");
+        }
+
+        String pin = generarPin();
+        pedido.setPin(pin);
+        pedido.setEstado(EstadoPedido.LISTO);
+
+        pedidoPersistencePort.actualizarPedido(pedido);
+
+        String telefono = usuarioServicePort.obtenerTelefonoCliente(pedido.getIdCliente());
+        String mensaje = String.format("Su pedido #%d está listo. Pin de seguridad: %s. Presente este pin para recoger su pedido.", pedido.getId(), pin);
+        mensajeriaServicePort.enviarSms(telefono, mensaje);
+    }
+
+    @Override
+    public void entregarPedido(Long idPedido, String pin, Long idRestaurante) {
+        Pedido pedido = obtenerPedidoDelRestaurante(idPedido, idRestaurante);
+
+        if (pedido.getEstado() != EstadoPedido.LISTO) {
+            throw new DomainException("Solo se puede entregar un pedido en estado LISTO");
+        }
+
+        if (!pedido.getPin().equals(pin)) {
+            throw new DomainException("El pin de seguridad no coincide");
+        }
+
+        pedido.setEstado(EstadoPedido.ENTREGADO);
+        pedidoPersistencePort.actualizarPedido(pedido);
+    }
+
+    private Pedido obtenerPedidoDelRestaurante(Long idPedido, Long idRestaurante) {
         Pedido pedido = pedidoPersistencePort.obtenerPedidoPorId(idPedido)
                 .orElseThrow(PedidoNoExisteException::new);
 
@@ -95,21 +124,7 @@ public class PedidoUseCase implements IPedidoServicePort {
             throw new DomainException("El pedido no pertenece al restaurante del empleado");
         }
 
-        if (pedido.getEstado() != EstadoPedido.EN_PREPARACION) {
-            throw new DomainException("Solo se puede marcar como listo un pedido en estado EN_PREPARACION");
-        }
-
-        // Generar pin de seguridad
-        String pin = generarPin();
-        pedido.setPin(pin);
-        pedido.setEstado(EstadoPedido.LISTO);
-
-        pedidoPersistencePort.actualizarPedido(pedido);
-
-        // Obtener teléfono del cliente y notificar
-        String telefono = usuarioServicePort.obtenerTelefonoCliente(pedido.getIdCliente());
-        String mensaje = String.format("Su pedido #%d está listo. Pin de seguridad: %s. Presente este pin para recoger su pedido.", pedido.getId(), pin);
-        mensajeriaServicePort.enviarSms(telefono, mensaje);
+        return pedido;
     }
 
     private String generarPin() {

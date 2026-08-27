@@ -10,4 +10,5 @@ public interface IPedidoServicePort {
     PaginatedResult<Pedido> listarPedidosPorEstado(Long idRestaurante, EstadoPedido estado, PaginationRequest paginationRequest);
     void asignarPedido(Long idPedido, Long idEmpleado, Long idRestaurante);
     void marcarPedidoListo(Long idPedido, Long idRestaurante);
+    void entregarPedido(Long idPedido, String pin, Long idRestaurante);
 }

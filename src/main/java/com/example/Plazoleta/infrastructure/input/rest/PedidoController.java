@@ -84,4 +84,16 @@ public class PedidoController {
         pedidoServicePort.marcarPedidoListo(idPedido, idRestaurante);
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping("/pedido/{idPedido}/entregar")
+    public ResponseEntity<Void> entregarPedido(
+            @PathVariable Long idPedido,
+            @RequestParam String pin) {
+
+        AuthUser authUser = authValidator.getAuthenticatedUser();
+        Long idRestaurante = usuarioServicePort.obtenerRestauranteIdDeEmpleado(authUser.getUserId());
+
+        pedidoServicePort.entregarPedido(idPedido, pin, idRestaurante);
+        return ResponseEntity.ok().build();
+    }
 }
