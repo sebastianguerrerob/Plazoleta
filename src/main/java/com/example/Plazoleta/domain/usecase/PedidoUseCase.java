@@ -116,6 +116,23 @@ public class PedidoUseCase implements IPedidoServicePort {
         pedidoPersistencePort.actualizarPedido(pedido);
     }
 
+    @Override
+    public void cancelarPedido(Long idPedido, Long idCliente) {
+        Pedido pedido = pedidoPersistencePort.obtenerPedidoPorId(idPedido)
+                .orElseThrow(PedidoNoExisteException::new);
+
+        if (!pedido.getIdCliente().equals(idCliente)) {
+            throw new DomainException("El pedido no pertenece al cliente");
+        }
+
+        if (pedido.getEstado() != EstadoPedido.PENDIENTE) {
+            throw new DomainException("Lo sentimos, tu pedido ya está en preparación y no puede cancelarse");
+        }
+
+        pedido.setEstado(EstadoPedido.CANCELADO);
+        pedidoPersistencePort.actualizarPedido(pedido);
+    }
+
     private Pedido obtenerPedidoDelRestaurante(Long idPedido, Long idRestaurante) {
         Pedido pedido = pedidoPersistencePort.obtenerPedidoPorId(idPedido)
                 .orElseThrow(PedidoNoExisteException::new);
