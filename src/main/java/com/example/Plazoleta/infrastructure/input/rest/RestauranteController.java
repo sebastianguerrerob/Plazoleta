@@ -8,6 +8,7 @@ import com.example.Plazoleta.domain.api.IRestauranteServicePort;
 import com.example.Plazoleta.domain.model.PaginatedResult;
 import com.example.Plazoleta.domain.model.PaginationRequest;
 import com.example.Plazoleta.domain.model.Restaurante;
+import com.example.Plazoleta.domain.spi.ITrazabilidadServicePort;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ public class RestauranteController {
     private final IRestauranteServicePort restauranteServicePort;
     private final IRestauranteRequestMapper restauranteRequestMapper;
     private final IRestauranteResponseMapper restauranteResponseMapper;
+    private final ITrazabilidadServicePort trazabilidadServicePort;
 
     @PostMapping("/restaurante")
     public ResponseEntity<Void> crearRestaurante(
@@ -63,5 +65,17 @@ public class RestauranteController {
 
         boolean esPropietario = restauranteServicePort.validarPropietarioRestaurante(idRestaurante, idPropietario);
         return ResponseEntity.ok(Map.of("esPropietario", esPropietario));
+    }
+
+    @GetMapping("/restaurante/{idRestaurante}/eficiencia")
+    public ResponseEntity<List<Map<String, Object>>> obtenerEficiencia(@PathVariable Long idRestaurante) {
+        List<Map<String, Object>> eficiencia = trazabilidadServicePort.obtenerEficienciaPorRestaurante(idRestaurante);
+        return ResponseEntity.ok(eficiencia);
+    }
+
+    @GetMapping("/restaurante/{idRestaurante}/eficiencia/ranking")
+    public ResponseEntity<List<Map<String, Object>>> obtenerRankingEmpleados(@PathVariable Long idRestaurante) {
+        List<Map<String, Object>> ranking = trazabilidadServicePort.obtenerRankingEmpleados(idRestaurante);
+        return ResponseEntity.ok(ranking);
     }
 }

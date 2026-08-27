@@ -21,4 +21,10 @@ public interface TrazabilidadFeignClient {
 
     @GetMapping("/trazabilidad/pedido/{idPedido}")
     List<Map<String, Object>> obtenerHistorialPorPedido(@PathVariable("idPedido") Long idPedido);
+
+    @GetMapping("/trazabilidad/eficiencia/restaurante/{idRestaurante}")
+    List<Map<String, Object>> obtenerEficienciaPorRestaurante(@PathVariable("idRestaurante") Long idRestaurante);
+
+    @GetMapping("/trazabilidad/eficiencia/restaurante/{idRestaurante}/ranking")
+    List<Map<String, Object>> obtenerRankingEmpleados(@PathVariable("idRestaurante") Long idRestaurante);
 }
