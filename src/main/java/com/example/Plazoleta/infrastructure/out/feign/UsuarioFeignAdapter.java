@@ -35,4 +35,16 @@ public class UsuarioFeignAdapter implements IUsuarioServicePort {
         UsuarioResponse usuario = usuarioFeignClient.obtenerUsuarioPorId(idCliente);
         return usuario.getCelular();
     }
+
+    @Override
+    public String obtenerCorreoCliente(Long idCliente) {
+        UsuarioResponse usuario = usuarioFeignClient.obtenerUsuarioPorId(idCliente);
+        return usuario.getCorreo();
+    }
+
+    @Override
+    public String obtenerCorreoEmpleado(Long idEmpleado) {
+        UsuarioResponse usuario = usuarioFeignClient.obtenerUsuarioPorId(idEmpleado);
+        return usuario.getCorreo();
+    }
 }

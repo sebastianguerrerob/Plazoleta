@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/Plazoleta")
@@ -95,5 +96,20 @@ public class PedidoController {
 
         pedidoServicePort.entregarPedido(idPedido, pin, idRestaurante);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/pedido/{idPedido}/cancelar")
+    public ResponseEntity<Void> cancelarPedido(@PathVariable Long idPedido) {
+
+        AuthUser authUser = authValidator.getAuthenticatedUser();
+
+        pedidoServicePort.cancelarPedido(idPedido, authUser.getUserId());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/pedido/{idPedido}/trazabilidad")
+    public ResponseEntity<List<Map<String, Object>>> obtenerHistorialPedido(@PathVariable Long idPedido) {
+        List<Map<String, Object>> historial = pedidoServicePort.obtenerHistorialPedido(idPedido);
+        return ResponseEntity.ok(historial);
     }
 }
