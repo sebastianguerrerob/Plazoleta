@@ -25,14 +25,16 @@ public class PedidoJpaAdapter implements IPedidoPersistencePort {
     private final IPedidoEntityMapper pedidoEntityMapper;
 
     @Override
-    public void guardarPedido(Pedido pedido) {
+    public Pedido guardarPedido(Pedido pedido) {
         PedidoEntity pedidoEntity = pedidoEntityMapper.toEntity(pedido);
         List<PedidoPlatoEntity> platosEntity = pedidoEntityMapper.toPlatoEntityList(pedido.getPlatos());
 
         platosEntity.forEach(platoEntity -> platoEntity.setPedido(pedidoEntity));
         pedidoEntity.setPlatos(platosEntity);
 
-        pedidoRepository.save(pedidoEntity);
+        PedidoEntity saved = pedidoRepository.save(pedidoEntity);
+        pedido.setId(saved.getId());
+        return pedido;
     }
 
     @Override

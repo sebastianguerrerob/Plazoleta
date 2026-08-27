@@ -62,12 +62,12 @@ public class PedidoUseCase implements IPedidoServicePort {
         pedido.setEstado(EstadoPedido.PENDIENTE);
         pedido.setFecha(LocalDate.now());
 
-        pedidoPersistencePort.guardarPedido(pedido);
+        Pedido pedidoGuardado = pedidoPersistencePort.guardarPedido(pedido);
 
-        String correoCliente = usuarioServicePort.obtenerCorreoCliente(pedido.getIdCliente());
+        String correoCliente = usuarioServicePort.obtenerCorreoCliente(pedidoGuardado.getIdCliente());
         trazabilidadServicePort.registrarCambioEstado(
-                pedido.getId(), pedido.getIdCliente(), correoCliente,
-                null, EstadoPedido.PENDIENTE.name(),
+                pedidoGuardado.getId(), pedidoGuardado.getIdCliente(), correoCliente,
+                "NINGUNO", EstadoPedido.PENDIENTE.name(),
                 null, null);
     }
 
