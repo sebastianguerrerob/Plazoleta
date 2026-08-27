@@ -29,4 +29,10 @@ public class UsuarioFeignAdapter implements IUsuarioServicePort {
         UsuarioResponse usuario = usuarioFeignClient.obtenerUsuarioPorId(idEmpleado);
         return usuario.getRestauranteId();
     }
+
+    @Override
+    public String obtenerTelefonoCliente(Long idCliente) {
+        UsuarioResponse usuario = usuarioFeignClient.obtenerUsuarioPorId(idCliente);
+        return usuario.getCelular();
+    }
 }

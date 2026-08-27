@@ -3,9 +3,11 @@ package com.example.Plazoleta.infrastructure.configuration;
 import com.example.Plazoleta.domain.api.IPedidoServicePort;
 import com.example.Plazoleta.domain.api.IPlatoServicePort;
 import com.example.Plazoleta.domain.api.IRestauranteServicePort;
+import com.example.Plazoleta.domain.spi.IMensajeriaServicePort;
 import com.example.Plazoleta.domain.spi.IPedidoPersistencePort;
 import com.example.Plazoleta.domain.spi.IPlatoPersistencePort;
 import com.example.Plazoleta.domain.spi.IRestaurantePersistencePort;
+import com.example.Plazoleta.domain.spi.IUsuarioServicePort;
 import com.example.Plazoleta.domain.usecase.PedidoUseCase;
 import com.example.Plazoleta.domain.usecase.PlatoUseCase;
 import com.example.Plazoleta.domain.usecase.RestauranteUseCase;
@@ -29,7 +31,9 @@ public class BeanConfiguration {
     @Bean
     public IPedidoServicePort pedidoServicePort(IPedidoPersistencePort pedidoPersistencePort,
                                                 IRestaurantePersistencePort restaurantePersistencePort,
-                                                IPlatoPersistencePort platoPersistencePort) {
-        return new PedidoUseCase(pedidoPersistencePort, restaurantePersistencePort, platoPersistencePort);
+                                                IPlatoPersistencePort platoPersistencePort,
+                                                IUsuarioServicePort usuarioServicePort,
+                                                IMensajeriaServicePort mensajeriaServicePort) {
+        return new PedidoUseCase(pedidoPersistencePort, restaurantePersistencePort, platoPersistencePort, usuarioServicePort, mensajeriaServicePort);
     }
 }

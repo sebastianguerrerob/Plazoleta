@@ -40,6 +40,7 @@ public class PedidoJpaAdapter implements IPedidoPersistencePort {
         pedidoRepository.findById(pedido.getId()).ifPresent(entity -> {
             entity.setEstado(pedido.getEstado());
             entity.setIdChef(pedido.getIdChef());
+            entity.setPin(pedido.getPin());
             pedidoRepository.save(entity);
         });
     }

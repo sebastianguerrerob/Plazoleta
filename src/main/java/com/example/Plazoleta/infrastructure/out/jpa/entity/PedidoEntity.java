@@ -35,6 +35,8 @@ public class PedidoEntity {
     @Column(name = "id_restaurante")
     private Long idRestaurante;
 
+    private String pin;
+
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PedidoPlatoEntity> platos;
 }
