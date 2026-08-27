@@ -96,4 +96,13 @@ public class PedidoController {
         pedidoServicePort.entregarPedido(idPedido, pin, idRestaurante);
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping("/pedido/{idPedido}/cancelar")
+    public ResponseEntity<Void> cancelarPedido(@PathVariable Long idPedido) {
+
+        AuthUser authUser = authValidator.getAuthenticatedUser();
+
+        pedidoServicePort.cancelarPedido(idPedido, authUser.getUserId());
+        return ResponseEntity.ok().build();
+    }
 }
