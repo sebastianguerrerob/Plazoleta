@@ -64,7 +64,6 @@ public class PedidoUseCase implements IPedidoServicePort {
 
         pedidoPersistencePort.guardarPedido(pedido);
 
-        // Registrar trazabilidad
         String correoCliente = usuarioServicePort.obtenerCorreoCliente(pedido.getIdCliente());
         trazabilidadServicePort.registrarCambioEstado(
                 pedido.getId(), pedido.getIdCliente(), correoCliente,
@@ -91,7 +90,6 @@ public class PedidoUseCase implements IPedidoServicePort {
 
         pedidoPersistencePort.actualizarPedido(pedido);
 
-        // Registrar trazabilidad
         String correoCliente = usuarioServicePort.obtenerCorreoCliente(pedido.getIdCliente());
         String correoEmpleado = usuarioServicePort.obtenerCorreoEmpleado(idEmpleado);
         trazabilidadServicePort.registrarCambioEstado(
@@ -115,12 +113,10 @@ public class PedidoUseCase implements IPedidoServicePort {
 
         pedidoPersistencePort.actualizarPedido(pedido);
 
-        // Notificar al cliente
         String telefono = usuarioServicePort.obtenerTelefonoCliente(pedido.getIdCliente());
         String mensaje = String.format("Su pedido #%d está listo. Pin de seguridad: %s. Presente este pin para recoger su pedido.", pedido.getId(), pin);
         mensajeriaServicePort.enviarSms(telefono, mensaje);
 
-        // Registrar trazabilidad
         String correoCliente = usuarioServicePort.obtenerCorreoCliente(pedido.getIdCliente());
         String correoEmpleado = usuarioServicePort.obtenerCorreoEmpleado(pedido.getIdChef());
         trazabilidadServicePort.registrarCambioEstado(
@@ -145,7 +141,6 @@ public class PedidoUseCase implements IPedidoServicePort {
         pedido.setEstado(EstadoPedido.ENTREGADO);
         pedidoPersistencePort.actualizarPedido(pedido);
 
-        // Registrar trazabilidad
         String correoCliente = usuarioServicePort.obtenerCorreoCliente(pedido.getIdCliente());
         String correoEmpleado = usuarioServicePort.obtenerCorreoEmpleado(pedido.getIdChef());
         trazabilidadServicePort.registrarCambioEstado(
@@ -171,7 +166,6 @@ public class PedidoUseCase implements IPedidoServicePort {
         pedido.setEstado(EstadoPedido.CANCELADO);
         pedidoPersistencePort.actualizarPedido(pedido);
 
-        // Registrar trazabilidad
         String correoCliente = usuarioServicePort.obtenerCorreoCliente(pedido.getIdCliente());
         trazabilidadServicePort.registrarCambioEstado(
                 pedido.getId(), pedido.getIdCliente(), correoCliente,
@@ -182,23 +176,6 @@ public class PedidoUseCase implements IPedidoServicePort {
     @Override
     public List<Map<String, Object>> obtenerHistorialPedido(Long idPedido) {
         return trazabilidadServicePort.obtenerHistorialPorPedido(idPedido);
-    }
-
-    @Override
-    public void cancelarPedido(Long idPedido, Long idCliente) {
-        Pedido pedido = pedidoPersistencePort.obtenerPedidoPorId(idPedido)
-                .orElseThrow(PedidoNoExisteException::new);
-
-        if (!pedido.getIdCliente().equals(idCliente)) {
-            throw new DomainException("El pedido no pertenece al cliente");
-        }
-
-        if (pedido.getEstado() != EstadoPedido.PENDIENTE) {
-            throw new DomainException("Lo sentimos, tu pedido ya está en preparación y no puede cancelarse");
-        }
-
-        pedido.setEstado(EstadoPedido.CANCELADO);
-        pedidoPersistencePort.actualizarPedido(pedido);
     }
 
     private Pedido obtenerPedidoDelRestaurante(Long idPedido, Long idRestaurante) {
