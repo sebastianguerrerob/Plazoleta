@@ -13,11 +13,13 @@ import com.example.Plazoleta.domain.spi.IMensajeriaServicePort;
 import com.example.Plazoleta.domain.spi.IPedidoPersistencePort;
 import com.example.Plazoleta.domain.spi.IPlatoPersistencePort;
 import com.example.Plazoleta.domain.spi.IRestaurantePersistencePort;
+import com.example.Plazoleta.domain.spi.ITrazabilidadServicePort;
 import com.example.Plazoleta.domain.spi.IUsuarioServicePort;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class PedidoUseCase implements IPedidoServicePort {
     private final IPlatoPersistencePort platoPersistencePort;
     private final IUsuarioServicePort usuarioServicePort;
     private final IMensajeriaServicePort mensajeriaServicePort;
+    private final ITrazabilidadServicePort trazabilidadServicePort;
 
     private static final List<EstadoPedido> ESTADOS_EN_PROCESO = List.of(
             EstadoPedido.PENDIENTE,
@@ -60,6 +63,13 @@ public class PedidoUseCase implements IPedidoServicePort {
         pedido.setFecha(LocalDate.now());
 
         pedidoPersistencePort.guardarPedido(pedido);
+
+        // Registrar trazabilidad
+        String correoCliente = usuarioServicePort.obtenerCorreoCliente(pedido.getIdCliente());
+        trazabilidadServicePort.registrarCambioEstado(
+                pedido.getId(), pedido.getIdCliente(), correoCliente,
+                null, EstadoPedido.PENDIENTE.name(),
+                null, null);
     }
 
     @Override
@@ -75,10 +85,19 @@ public class PedidoUseCase implements IPedidoServicePort {
             throw new DomainException("Solo se puede asignar un pedido en estado PENDIENTE");
         }
 
+        String estadoAnterior = pedido.getEstado().name();
         pedido.setIdChef(idEmpleado);
         pedido.setEstado(EstadoPedido.EN_PREPARACION);
 
         pedidoPersistencePort.actualizarPedido(pedido);
+
+        // Registrar trazabilidad
+        String correoCliente = usuarioServicePort.obtenerCorreoCliente(pedido.getIdCliente());
+        String correoEmpleado = usuarioServicePort.obtenerCorreoEmpleado(idEmpleado);
+        trazabilidadServicePort.registrarCambioEstado(
+                pedido.getId(), pedido.getIdCliente(), correoCliente,
+                estadoAnterior, EstadoPedido.EN_PREPARACION.name(),
+                idEmpleado, correoEmpleado);
     }
 
     @Override
@@ -89,15 +108,25 @@ public class PedidoUseCase implements IPedidoServicePort {
             throw new DomainException("Solo se puede marcar como listo un pedido en estado EN_PREPARACION");
         }
 
+        String estadoAnterior = pedido.getEstado().name();
         String pin = generarPin();
         pedido.setPin(pin);
         pedido.setEstado(EstadoPedido.LISTO);
 
         pedidoPersistencePort.actualizarPedido(pedido);
 
+        // Notificar al cliente
         String telefono = usuarioServicePort.obtenerTelefonoCliente(pedido.getIdCliente());
         String mensaje = String.format("Su pedido #%d está listo. Pin de seguridad: %s. Presente este pin para recoger su pedido.", pedido.getId(), pin);
         mensajeriaServicePort.enviarSms(telefono, mensaje);
+
+        // Registrar trazabilidad
+        String correoCliente = usuarioServicePort.obtenerCorreoCliente(pedido.getIdCliente());
+        String correoEmpleado = usuarioServicePort.obtenerCorreoEmpleado(pedido.getIdChef());
+        trazabilidadServicePort.registrarCambioEstado(
+                pedido.getId(), pedido.getIdCliente(), correoCliente,
+                estadoAnterior, EstadoPedido.LISTO.name(),
+                pedido.getIdChef(), correoEmpleado);
     }
 
     @Override
@@ -112,8 +141,47 @@ public class PedidoUseCase implements IPedidoServicePort {
             throw new DomainException("El pin de seguridad no coincide");
         }
 
+        String estadoAnterior = pedido.getEstado().name();
         pedido.setEstado(EstadoPedido.ENTREGADO);
         pedidoPersistencePort.actualizarPedido(pedido);
+
+        // Registrar trazabilidad
+        String correoCliente = usuarioServicePort.obtenerCorreoCliente(pedido.getIdCliente());
+        String correoEmpleado = usuarioServicePort.obtenerCorreoEmpleado(pedido.getIdChef());
+        trazabilidadServicePort.registrarCambioEstado(
+                pedido.getId(), pedido.getIdCliente(), correoCliente,
+                estadoAnterior, EstadoPedido.ENTREGADO.name(),
+                pedido.getIdChef(), correoEmpleado);
+    }
+
+    @Override
+    public void cancelarPedido(Long idPedido, Long idCliente) {
+        Pedido pedido = pedidoPersistencePort.obtenerPedidoPorId(idPedido)
+                .orElseThrow(PedidoNoExisteException::new);
+
+        if (!pedido.getIdCliente().equals(idCliente)) {
+            throw new DomainException("El pedido no pertenece al cliente");
+        }
+
+        if (pedido.getEstado() != EstadoPedido.PENDIENTE) {
+            throw new DomainException("Lo sentimos, tu pedido ya está en preparación y no puede cancelarse");
+        }
+
+        String estadoAnterior = pedido.getEstado().name();
+        pedido.setEstado(EstadoPedido.CANCELADO);
+        pedidoPersistencePort.actualizarPedido(pedido);
+
+        // Registrar trazabilidad
+        String correoCliente = usuarioServicePort.obtenerCorreoCliente(pedido.getIdCliente());
+        trazabilidadServicePort.registrarCambioEstado(
+                pedido.getId(), pedido.getIdCliente(), correoCliente,
+                estadoAnterior, EstadoPedido.CANCELADO.name(),
+                null, null);
+    }
+
+    @Override
+    public List<Map<String, Object>> obtenerHistorialPedido(Long idPedido) {
+        return trazabilidadServicePort.obtenerHistorialPorPedido(idPedido);
     }
 
     private Pedido obtenerPedidoDelRestaurante(Long idPedido, Long idRestaurante) {
