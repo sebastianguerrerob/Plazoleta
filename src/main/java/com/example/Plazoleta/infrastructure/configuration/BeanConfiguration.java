@@ -7,6 +7,7 @@ import com.example.Plazoleta.domain.spi.IMensajeriaServicePort;
 import com.example.Plazoleta.domain.spi.IPedidoPersistencePort;
 import com.example.Plazoleta.domain.spi.IPlatoPersistencePort;
 import com.example.Plazoleta.domain.spi.IRestaurantePersistencePort;
+import com.example.Plazoleta.domain.spi.ITrazabilidadServicePort;
 import com.example.Plazoleta.domain.spi.IUsuarioServicePort;
 import com.example.Plazoleta.domain.usecase.PedidoUseCase;
 import com.example.Plazoleta.domain.usecase.PlatoUseCase;
@@ -33,7 +34,8 @@ public class BeanConfiguration {
                                                 IRestaurantePersistencePort restaurantePersistencePort,
                                                 IPlatoPersistencePort platoPersistencePort,
                                                 IUsuarioServicePort usuarioServicePort,
-                                                IMensajeriaServicePort mensajeriaServicePort) {
-        return new PedidoUseCase(pedidoPersistencePort, restaurantePersistencePort, platoPersistencePort, usuarioServicePort, mensajeriaServicePort);
+                                                IMensajeriaServicePort mensajeriaServicePort,
+                                                ITrazabilidadServicePort trazabilidadServicePort) {
+        return new PedidoUseCase(pedidoPersistencePort, restaurantePersistencePort, platoPersistencePort, usuarioServicePort, mensajeriaServicePort, trazabilidadServicePort);
     }
 }
