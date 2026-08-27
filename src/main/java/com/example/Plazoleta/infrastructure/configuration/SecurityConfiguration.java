@@ -38,6 +38,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/Plazoleta/pedidos").hasRole("EMPLEADO")
                         .requestMatchers(HttpMethod.PATCH, "/Plazoleta/pedido/*/asignar").hasRole("EMPLEADO")
                         .requestMatchers(HttpMethod.PATCH, "/Plazoleta/pedido/*/listo").hasRole("EMPLEADO")
+                        .requestMatchers(HttpMethod.PATCH, "/Plazoleta/pedido/*/entregar").hasRole("EMPLEADO")
 
                         .anyRequest().authenticated()
                 )
