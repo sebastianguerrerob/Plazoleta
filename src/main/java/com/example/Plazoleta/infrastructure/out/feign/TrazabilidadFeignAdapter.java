@@ -35,4 +35,14 @@ public class TrazabilidadFeignAdapter implements ITrazabilidadServicePort {
     public List<Map<String, Object>> obtenerHistorialPorPedido(Long idPedido) {
         return trazabilidadFeignClient.obtenerHistorialPorPedido(idPedido);
     }
+
+    @Override
+    public List<Map<String, Object>> obtenerEficienciaPorRestaurante(Long idRestaurante) {
+        return trazabilidadFeignClient.obtenerEficienciaPorRestaurante(idRestaurante);
+    }
+
+    @Override
+    public List<Map<String, Object>> obtenerRankingEmpleados(Long idRestaurante) {
+        return trazabilidadFeignClient.obtenerRankingEmpleados(idRestaurante);
+    }
 }

@@ -9,4 +9,8 @@ public interface ITrazabilidadServicePort {
                                Long idEmpleado, String correoEmpleado);
 
     List<Map<String, Object>> obtenerHistorialPorPedido(Long idPedido);
+
+    List<Map<String, Object>> obtenerEficienciaPorRestaurante(Long idRestaurante);
+
+    List<Map<String, Object>> obtenerRankingEmpleados(Long idRestaurante);
 }
